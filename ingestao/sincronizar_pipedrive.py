@@ -131,6 +131,12 @@ def mapear_negocio(deal: dict, pessoa_empresa_id: str):
     if situacao == OPCAO_SITUACAO_CANCELADO:
         return None
 
+    # Endosso e alteracao de uma apolice ja existente, nao uma nova relacao
+    # comercial - nao deve contar como cliente/renovacao separado. Decisao
+    # confirmada em 2026-08-10.
+    if "endosso" in (deal.get("title") or "").lower():
+        return None
+
     status_app = STATUS_PIPEDRIVE_PARA_APP.get(deal.get("status"))
     if status_app is None:
         return None
@@ -177,6 +183,27 @@ def mapear_negocio(deal: dict, pessoa_empresa_id: str):
         )
 
     return negocio
+
+
+def remover_duplicidade_exata(negocios: list):
+    # Duplicidade exata: mesmo cliente + seguradora + produto + data de
+    # inicio identica. Produtos como Auto podem ter varias apolices
+    # concorrentes por cliente (uma por veiculo da frota) - so removemos
+    # quando a data de inicio bate igualzinho, o que indica a mesma apolice
+    # lancada mais de uma vez, nao veiculos/itens diferentes. Decisao
+    # confirmada em 2026-08-10.
+    vistos = set()
+    unicos = []
+    removidos = 0
+    for negocio in sorted(negocios, key=lambda n: int(n["id"].removeprefix("pd_"))):
+        if negocio["status"] == "ganho":
+            chave = (negocio["pessoaEmpresaId"], negocio["seguradora"], negocio["produto"], negocio["dataInicio"])
+            if chave in vistos:
+                removidos += 1
+                continue
+            vistos.add(chave)
+        unicos.append(negocio)
+    return unicos, removidos
 
 
 def sincronizar(seguradora_filtro, token: str, limite):
@@ -259,6 +286,10 @@ def sincronizar(seguradora_filtro, token: str, limite):
         negocio = mapear_negocio(deal, chave)
         if negocio and negocio["proprietarioId"]:
             negocios.append(negocio)
+
+    negocios, removidos = remover_duplicidade_exata(negocios)
+    if removidos:
+        print(f"Duplicidade exata removida: {removidos} negocio(s) (mesmo cliente+seguradora+produto+data de inicio)")
 
     proprietarios = buscar_proprietarios(token)
 
