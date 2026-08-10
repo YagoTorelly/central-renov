@@ -32,12 +32,20 @@ KEY_CPF_PESSOA = "b000bb0d79f7b37a76fac0846b26018d48287311"
 
 OPCAO_SITUACAO_CANCELADO = "106"
 
-SEGURADORAS = {
+# So usado pro filtro rapido de teste (--seguradora bradesco --limite 20).
+# A sincronizacao completa (--seguradora todas) nao filtra mais por
+# seguradora - processa QUALQUER negocio das 4 seguradoras conhecidas, das
+# outras ~35 seguradoras cadastradas no Pipedrive, e ate os sem seguradora
+# preenchida. Decisao confirmada em 2026-08-10: "pegar de fato" a carteira
+# inteira, nao so o recorte historico de 4 seguradoras.
+SEGURADORAS_CONHECIDAS = {
     "bradesco": "76",
     "sulamerica": "74",
     "amil": "77",
     "portoseguro": "75",
 }
+ID_SEGURADORA_PORTO_SEGURO = "75"
+SEGURADORA_NAO_INFORMADA = "Nao informada"
 
 TEMPO_CONTRATO_MESES = {
     "183": 12,
@@ -51,7 +59,6 @@ STATUS_PIPEDRIVE_PARA_APP = {"won": "ganho", "lost": "perdido", "open": "aberto"
 # Regra de fallback pro tempo de contrato quando o campo esta vazio -
 # confirmada em 2026-08-10, vale so pro produto principal da carteira.
 PRODUTO_SAUDE_PME = "Saúde PME"
-SEGURADORA_VIGENCIA_24_MESES = "portoseguro"
 
 
 def normalizar_documento(valor) -> str:
@@ -102,7 +109,7 @@ def buscar_proprietarios(token: str) -> list:
     return proprietarios
 
 
-def buscar_deals(seguradora_id: str, token: str) -> list:
+def buscar_todos_deals(token: str) -> list:
     deals = []
     start = 0
     while True:
@@ -116,7 +123,7 @@ def buscar_deals(seguradora_id: str, token: str) -> list:
         if not paginacao.get("more_items_in_collection"):
             break
         start = paginacao.get("next_start")
-    return [d for d in deals if str(d.get(KEY_SEGURADORA)) == seguradora_id]
+    return deals
 
 
 def mapear_negocio(deal: dict, pessoa_empresa_id: str):
@@ -155,7 +162,7 @@ def mapear_negocio(deal: dict, pessoa_empresa_id: str):
             # produto principal (Saude PME). Porto Seguro normalmente e
             # 24 meses, as demais seguradoras 12 meses.
             if deal.get("_produto_label") == PRODUTO_SAUDE_PME:
-                meses_vigencia = 24 if deal.get("_seguradora_slug") == SEGURADORA_VIGENCIA_24_MESES else 12
+                meses_vigencia = 24 if str(deal.get(KEY_SEGURADORA)) == ID_SEGURADORA_PORTO_SEGURO else 12
             else:
                 meses_vigencia = None
         else:
@@ -172,22 +179,29 @@ def mapear_negocio(deal: dict, pessoa_empresa_id: str):
     return negocio
 
 
-def sincronizar(seguradoras: list, token: str, limite):
-    produto_labels = _get(f"https://api.pipedrive.com/v1/dealFields?api_token={token}")
-    campo_produto = next(f for f in produto_labels["data"] if f["key"] == KEY_PRODUTO)
+def sincronizar(seguradora_filtro, token: str, limite):
+    campos = _get(f"https://api.pipedrive.com/v1/dealFields?api_token={token}")
+    campo_produto = next(f for f in campos["data"] if f["key"] == KEY_PRODUTO)
+    campo_seguradora = next(f for f in campos["data"] if f["key"] == KEY_SEGURADORA)
     # options[].id vem como int, mas o valor gravado no deal e string - normaliza os dois lados
     produto_id_para_label = {str(o["id"]): o["label"] for o in campo_produto["options"]}
+    seguradora_id_para_label = {str(o["id"]): o["label"] for o in campo_seguradora["options"]}
 
-    todos_deals = []
-    for nome in seguradoras:
-        deals = buscar_deals(SEGURADORAS[nome], token)
-        if limite:
-            deals = deals[:limite]
-        for d in deals:
-            d["_seguradora_slug"] = nome
-            d["_produto_label"] = produto_id_para_label.get(d.get(KEY_PRODUTO))
-        todos_deals.extend(deals)
-        print(f"{nome}: {len(deals)} negocio(s) considerados")
+    todos_deals = buscar_todos_deals(token)
+    print(f"Negocios no Pipedrive (qualquer situacao/seguradora): {len(todos_deals)}")
+
+    if seguradora_filtro:
+        # so pra teste rapido de uma seguradora conhecida (--seguradora bradesco)
+        id_alvo = SEGURADORAS_CONHECIDAS[seguradora_filtro]
+        todos_deals = [d for d in todos_deals if str(d.get(KEY_SEGURADORA)) == id_alvo]
+
+    if limite:
+        todos_deals = todos_deals[:limite]
+
+    for d in todos_deals:
+        d["_seguradora_slug"] = seguradora_id_para_label.get(str(d.get(KEY_SEGURADORA)), SEGURADORA_NAO_INFORMADA)
+        d["_produto_label"] = produto_id_para_label.get(d.get(KEY_PRODUTO))
+    print(f"{len(todos_deals)} negocio(s) considerados para processar")
 
     org_ids = {d["org_id"]["value"] for d in todos_deals if isinstance(d.get("org_id"), dict)}
     person_ids = {
@@ -271,8 +285,14 @@ def enviar_para_backend(payload: dict, backend_url: str, cron_secret):
 
 def main():
     parser = argparse.ArgumentParser(description="Sincroniza dados reais do Pipedrive pra Central de Renovacao")
-    parser.add_argument("--seguradora", required=True, choices=sorted(SEGURADORAS.keys()) + ["todas"])
-    parser.add_argument("--limite", type=int, help="Limita negocios por seguradora (teste rapido)")
+    parser.add_argument(
+        "--seguradora",
+        required=True,
+        choices=sorted(SEGURADORAS_CONHECIDAS.keys()) + ["todas"],
+        help='"todas" processa TODAS as seguradoras do Pipedrive (nao so as 4 conhecidas); '
+        "um nome especifico filtra so aquela seguradora, util pra teste rapido.",
+    )
+    parser.add_argument("--limite", type=int, help="Limita a quantidade total de negocios (teste rapido)")
     parser.add_argument("--backend-url", help="Ex: http://localhost:3001. Se omitido, so salva um JSON local.")
     args = parser.parse_args()
 
@@ -281,8 +301,8 @@ def main():
     if not token:
         raise RuntimeError("PIPEDRIVE_API_TOKEN nao configurado em .env")
 
-    seguradoras = list(SEGURADORAS.keys()) if args.seguradora == "todas" else [args.seguradora]
-    payload = sincronizar(seguradoras, token, args.limite)
+    seguradora_filtro = None if args.seguradora == "todas" else args.seguradora
+    payload = sincronizar(seguradora_filtro, token, args.limite)
 
     saida = BASE_DIR / "output" / "sincronizacao_pipedrive.json"
     saida.parent.mkdir(parents=True, exist_ok=True)
