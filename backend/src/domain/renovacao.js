@@ -22,8 +22,14 @@ function calcularAlertaRenovacao(diasRestantes) {
 }
 
 // Recebe um negocio "ganho" (dataInicio + mesesVigencia) e devolve os campos
-// derivados que a tela "Meus Clientes" precisa exibir.
+// derivados que a tela "Meus Clientes" precisa exibir. mesesVigencia null
+// (contrato "Indeterminado" no Pipedrive) nao tem como calcular renovacao -
+// decisao confirmada em 2026-08-10: mostra o cliente sem alerta, em vez de
+// inventar uma data (setMonth(x + null) silenciosamente vira setMonth(x)).
 function calcularRenovacao(negocio, hoje = new Date()) {
+  if (negocio.mesesVigencia == null) {
+    return { dataRenovacao: null, diasRestantes: null, alerta: null };
+  }
   const dataRenovacao = calcularDataRenovacao(negocio.dataInicio, negocio.mesesVigencia);
   const diasRestantes = diasAteRenovacao(dataRenovacao, hoje);
   return {

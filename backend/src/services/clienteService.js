@@ -28,7 +28,9 @@ async function listarMeusClientes(proprietarioId) {
     });
   }
 
-  return clientes.sort((a, b) => a.diasRestantes - b.diasRestantes);
+  // diasRestantes null (contrato indeterminado) vai pro fim da lista -
+  // renovacoes com data calculavel aparecem primeiro, ordenadas por urgencia.
+  return clientes.sort((a, b) => (a.diasRestantes ?? Infinity) - (b.diasRestantes ?? Infinity));
 }
 
 module.exports = { listarMeusClientes };
