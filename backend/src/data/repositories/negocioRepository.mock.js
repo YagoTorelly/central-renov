@@ -12,4 +12,8 @@ async function listarPorPessoaEmpresa(pessoaEmpresaId) {
   return negocios.filter((n) => n.pessoaEmpresaId === pessoaEmpresaId);
 }
 
-module.exports = { listar, listarPorProprietario, listarPorPessoaEmpresa };
+async function buscarPorId(id) {
+  return negocios.find((n) => n.id === id) || null;
+}
+
+module.exports = { listar, listarPorProprietario, listarPorPessoaEmpresa, buscarPorId };

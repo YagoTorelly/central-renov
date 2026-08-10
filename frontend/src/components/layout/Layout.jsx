@@ -1,8 +1,9 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useProprietarioAtual } from "../../hooks/useProprietarioAtual";
+import { logoWtg } from "../../assets/logoWtg";
 
 export default function Layout() {
-  const { proprietarioId, sair } = useProprietarioAtual();
+  const { proprietarioNome, sair } = useProprietarioAtual();
   const navegar = useNavigate();
 
   function trocarUsuario() {
@@ -13,15 +14,19 @@ export default function Layout() {
   return (
     <div className="layout">
       <header className="topo">
-        <strong>Central Renov</strong>
+        <img className="topo-logo" src={logoWtg} alt="WTG Corretora" />
         <nav>
           <NavLink to="/dashboard">Dashboard</NavLink>
           <NavLink to="/clientes">Meus Clientes</NavLink>
           <NavLink to="/leads">Leads Parados</NavLink>
-          <NavLink to="/admin">Administracao</NavLink>
+          <NavLink to="/atividades">Atividades</NavLink>
+          <NavLink to="/admin">Administração</NavLink>
         </nav>
         <span className="usuario-atual">
-          {proprietarioId} <button onClick={trocarUsuario}>trocar</button>
+          {proprietarioNome}
+          <button className="botao botao-secundario" onClick={trocarUsuario}>
+            Trocar usuário
+          </button>
         </span>
       </header>
       <main>

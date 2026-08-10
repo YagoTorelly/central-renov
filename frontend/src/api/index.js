@@ -17,6 +17,7 @@ export const api = {
   dashboard: (proprietarioId) => pedir(`/api/dashboard/${proprietarioId}`),
   meusClientes: (proprietarioId) => pedir(`/api/clientes/${proprietarioId}`),
   leadsParados: (proprietarioId) => pedir(`/api/leads/${proprietarioId}`),
+  atividades: (proprietarioId) => pedir(`/api/atividades/${proprietarioId}`),
   duplicidades: () => pedir("/api/admin/duplicidades"),
   registrarAtividade: (dados) =>
     pedir("/api/atividades", { method: "POST", body: JSON.stringify(dados) }),

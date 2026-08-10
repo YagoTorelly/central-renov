@@ -13,32 +13,43 @@ export default function Admin() {
 
   return (
     <div>
-      <h1>Administracao - Possiveis duplicidades</h1>
-      <p>Match exato de CPF/CNPJ (escopo do MVP - ver IDEIA.md).</p>
-      {duplicidades.length === 0 && <p>Nenhuma duplicidade encontrada nos dados atuais.</p>}
-      {duplicidades.map((d) => (
-        <div className="duplicidade-cartao" key={d.documento}>
-          <strong>Documento {d.documento}</strong> - confianca {d.confianca}%
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Telefone</th>
-                <th>Proprietarios envolvidos</th>
-              </tr>
-            </thead>
-            <tbody>
-              {d.cadastros.map((c) => (
-                <tr key={c.id}>
-                  <td>{c.nome}</td>
-                  <td>{c.telefone}</td>
-                  <td>{c.proprietariosEnvolvidos.join(", ") || "-"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="cabecalho-pagina">
+        <div>
+          <h1>Administração — Possíveis duplicidades</h1>
+          <p>Cadastros com o mesmo CPF/CNPJ em proprietários diferentes (match exato, ver IDEIA.md).</p>
         </div>
-      ))}
+      </div>
+
+      {duplicidades.length === 0 ? (
+        <div className="estado-vazio">
+          <span className="icone">✅</span>
+          Nenhuma duplicidade encontrada nos dados atuais.
+        </div>
+      ) : (
+        duplicidades.map((d) => (
+          <div className="duplicidade-cartao" key={d.documento}>
+            <strong>Documento {d.documento}</strong> — confiança {d.confianca}%
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Telefone</th>
+                  <th>Proprietários envolvidos</th>
+                </tr>
+              </thead>
+              <tbody>
+                {d.cadastros.map((c) => (
+                  <tr key={c.id}>
+                    <td>{c.nome}</td>
+                    <td>{c.telefone || "-"}</td>
+                    <td>{c.proprietariosEnvolvidos.join(", ") || "-"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))
+      )}
     </div>
   );
 }

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../api";
 import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
 
 export default function Dashboard() {
   const [dados, setDados] = useState(null);
   const [erro, setErro] = useState(null);
-  const { proprietarioId } = useProprietarioAtual();
+  const { proprietarioId, proprietarioNome } = useProprietarioAtual();
 
   useEffect(() => {
     api.dashboard(proprietarioId).then(setDados).catch((e) => setErro(e.message));
@@ -14,24 +15,50 @@ export default function Dashboard() {
   if (erro) return <p className="erro">{erro}</p>;
   if (!dados) return <p>Carregando...</p>;
 
+  // Cada card leva pra tela e filtro correspondente - clicar mostra
+  // exatamente os clientes/leads daquele numero, em vez de so informar.
   const cartoes = [
-    { titulo: "Clientes ativos", valor: dados.totalClientesAtivos },
-    { titulo: "Renovacoes proximas (90/60/30 dias)", valor: dados.renovacoesProximas },
-    { titulo: "Renovacoes atrasadas", valor: dados.renovacoesAtrasadas },
-    { titulo: "Leads parados", valor: dados.leadsParados },
-    { titulo: "Leads quentes", valor: dados.leadsQuentes },
-    { titulo: "Contatos realizados", valor: dados.contatosRealizados },
+    { titulo: "Clientes ativos", valor: dados.totalClientesAtivos, to: "/clientes", dica: "Ver todos" },
+    {
+      titulo: "Renovações próximas (90/60/30 dias)",
+      valor: dados.renovacoesProximas,
+      to: "/clientes?filtro=proximas",
+      dica: "Ver quais",
+      classe: "cartao-destaque",
+    },
+    {
+      titulo: "Renovações atrasadas",
+      valor: dados.renovacoesAtrasadas,
+      to: "/clientes?filtro=atrasadas",
+      dica: "Ver quais",
+      classe: "cartao-atrasada",
+    },
+    { titulo: "Leads parados", valor: dados.leadsParados, to: "/leads", dica: "Ver todos" },
+    {
+      titulo: "Leads quentes",
+      valor: dados.leadsQuentes,
+      to: "/leads?filtro=quente",
+      dica: "Ver quais",
+      classe: "cartao-atrasada",
+    },
+    { titulo: "Contatos realizados", valor: dados.contatosRealizados, to: "/atividades", dica: "Ver histórico" },
   ];
 
   return (
     <div>
-      <h1>Dashboard</h1>
+      <div className="cabecalho-pagina">
+        <div>
+          <h1>Olá, {proprietarioNome?.split(" ")[0]}</h1>
+          <p>Aqui está o resumo da sua carteira hoje. Clique em qualquer número pra ver a lista.</p>
+        </div>
+      </div>
       <div className="grade-cartoes">
         {cartoes.map((c) => (
-          <div className="cartao" key={c.titulo}>
+          <Link className={`cartao ${c.classe || ""}`} to={c.to} key={c.titulo}>
             <span className="cartao-valor">{c.valor}</span>
             <span className="cartao-titulo">{c.titulo}</span>
-          </div>
+            <span className="cartao-dica">{c.dica} →</span>
+          </Link>
         ))}
       </div>
     </div>

@@ -1,17 +1,36 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { api } from "../api";
 import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
 import Badge from "../components/ui/Badge";
+
+const POR_PAGINA = 20;
+
+const FILTROS = [
+  { chave: "todos", rotulo: "Todos" },
+  { chave: "quente", rotulo: "Quente" },
+  { chave: "morno", rotulo: "Morno" },
+  { chave: "frio", rotulo: "Frio" },
+];
 
 export default function LeadsParados() {
   const [leads, setLeads] = useState([]);
   const [erro, setErro] = useState(null);
   const [mensagem, setMensagem] = useState(null);
+  const [busca, setBusca] = useState("");
+  const [pagina, setPagina] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
   const { proprietarioId } = useProprietarioAtual();
+
+  const filtro = searchParams.get("filtro") || "todos";
 
   useEffect(() => {
     carregar();
   }, [proprietarioId]);
+
+  useEffect(() => {
+    setPagina(1);
+  }, [filtro, busca]);
 
   function carregar() {
     api.leadsParados(proprietarioId).then(setLeads).catch((e) => setErro(e.message));
@@ -19,44 +38,120 @@ export default function LeadsParados() {
 
   async function registrar(negocioId, tipo) {
     await api.registrarAtividade({ negocioId, proprietarioId, tipo, resultado: "contato iniciado" });
-    setMensagem(`Atividade "${tipo}" registrada para ${negocioId}.`);
+    setMensagem(`Atividade "${tipo}" registrada.`);
     carregar();
   }
+
+  const filtrados = useMemo(() => {
+    let lista = leads;
+    if (filtro !== "todos") lista = lista.filter((l) => l.classificacao === filtro);
+    const termo = busca.trim().toLowerCase();
+    if (termo) lista = lista.filter((l) => l.nome.toLowerCase().includes(termo));
+    return lista;
+  }, [leads, filtro, busca]);
+
+  const totalPaginas = Math.max(1, Math.ceil(filtrados.length / POR_PAGINA));
+  const pagina_ = Math.min(pagina, totalPaginas);
+  const visiveis = filtrados.slice((pagina_ - 1) * POR_PAGINA, pagina_ * POR_PAGINA);
 
   if (erro) return <p className="erro">{erro}</p>;
 
   return (
     <div>
-      <h1>Leads Parados</h1>
-      {mensagem && <p className="mensagem">{mensagem}</p>}
-      <div className="lista-leads">
-        {leads.map((lead) => (
-          <div className={`lead-cartao lead-${lead.classificacao}`} key={lead.negocioId}>
-            <div className="lead-cabecalho">
-              <strong>{lead.nome}</strong>
-              <Badge tipo={lead.classificacao}>{lead.classificacao}</Badge>
-            </div>
-            <p>
-              {lead.produto} - {lead.status} - {lead.diasSemMovimentacao} dias sem movimentacao
-            </p>
-            {lead.oportunidadeVendaCruzada && (
-              <p className="venda-cruzada">{lead.oportunidadeVendaCruzada.mensagem}</p>
-            )}
-            <p className="motivos">{lead.motivos.join(" | ")}</p>
-            <div className="acoes">
-              <button disabled={!lead.telefone} onClick={() => registrar(lead.negocioId, "whatsapp")}>
-                WhatsApp
-              </button>
-              <button disabled={!lead.telefone} onClick={() => registrar(lead.negocioId, "ligacao")}>
-                Ligar
-              </button>
-              <button disabled={!lead.email} onClick={() => registrar(lead.negocioId, "email")}>
-                E-mail
-              </button>
-            </div>
-          </div>
-        ))}
+      <div className="cabecalho-pagina">
+        <div>
+          <h1>Leads Parados</h1>
+          <p>Oportunidades que ainda podem virar venda, ordenadas por maior chance de conversão.</p>
+        </div>
       </div>
+
+      <div className="barra-filtros">
+        {FILTROS.map((f) => (
+          <button
+            key={f.chave}
+            className={`chip ${filtro === f.chave ? "ativo" : ""}`}
+            onClick={() => setSearchParams(f.chave === "todos" ? {} : { filtro: f.chave })}
+          >
+            {f.rotulo}
+          </button>
+        ))}
+        <input
+          className="campo-busca"
+          placeholder="Buscar por nome..."
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+        />
+      </div>
+
+      <p className="contador-resultados">
+        {filtrados.length} lead{filtrados.length === 1 ? "" : "s"} encontrado{filtrados.length === 1 ? "" : "s"}
+      </p>
+
+      {mensagem && <p className="mensagem">{mensagem}</p>}
+
+      {filtrados.length === 0 ? (
+        <div className="estado-vazio">
+          <span className="icone">🎯</span>
+          Nenhum lead parado com esse filtro.
+        </div>
+      ) : (
+        <>
+          <div className="lista-leads">
+            {visiveis.map((lead) => (
+              <div className={`lead-cartao lead-${lead.classificacao}`} key={lead.negocioId}>
+                <div className="lead-cabecalho">
+                  <strong>{lead.nome}</strong>
+                  <Badge tipo={lead.classificacao}>{lead.classificacao}</Badge>
+                </div>
+                <p className="info-secundaria">
+                  {lead.produto} · {lead.seguradora} · {lead.status} · {lead.diasSemMovimentacao} dias sem
+                  movimentação
+                </p>
+                {lead.oportunidadeVendaCruzada && (
+                  <p className="venda-cruzada">💡 {lead.oportunidadeVendaCruzada.mensagem}</p>
+                )}
+                <p className="motivos">{lead.motivos.join(" · ")}</p>
+                <div className="acoes">
+                  <button
+                    className="botao botao-primario"
+                    disabled={!lead.telefone}
+                    onClick={() => registrar(lead.negocioId, "whatsapp")}
+                  >
+                    WhatsApp
+                  </button>
+                  <button
+                    className="botao botao-secundario"
+                    disabled={!lead.telefone}
+                    onClick={() => registrar(lead.negocioId, "ligacao")}
+                  >
+                    Ligar
+                  </button>
+                  <button
+                    className="botao botao-secundario"
+                    disabled={!lead.email}
+                    onClick={() => registrar(lead.negocioId, "email")}
+                  >
+                    E-mail
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          {totalPaginas > 1 && (
+            <div className="paginacao">
+              <button disabled={pagina_ === 1} onClick={() => setPagina(pagina_ - 1)}>
+                Anterior
+              </button>
+              <span>
+                Página {pagina_} de {totalPaginas}
+              </span>
+              <button disabled={pagina_ === totalPaginas} onClick={() => setPagina(pagina_ + 1)}>
+                Próxima
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
