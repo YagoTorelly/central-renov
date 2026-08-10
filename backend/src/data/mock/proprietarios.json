@@ -1,0 +1,6 @@
+[
+  { "id": "carlos", "nome": "Carlos Mendes", "email": "carlos@wtgcorretora.com.br", "papel": "proprietario" },
+  { "id": "ana", "nome": "Ana Ribeiro", "email": "ana@wtgcorretora.com.br", "papel": "proprietario" },
+  { "id": "bruno", "nome": "Bruno Alves", "email": "bruno@wtgcorretora.com.br", "papel": "proprietario" },
+  { "id": "admin", "nome": "Administrador", "email": "admin@wtgcorretora.com.br", "papel": "admin" }
+]

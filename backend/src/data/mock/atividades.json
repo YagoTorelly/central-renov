@@ -1,0 +1,4 @@
+[
+  { "id": "a1", "negocioId": "n1", "proprietarioId": "carlos", "data": "2026-08-01", "tipo": "whatsapp", "resultado": "retorno agendado" },
+  { "id": "a2", "negocioId": "n6", "proprietarioId": "ana", "data": "2026-07-22", "tipo": "ligacao", "resultado": "sem resposta" }
+]

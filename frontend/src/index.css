@@ -1,0 +1,205 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background: #f4f5f7;
+  color: #1a1a1a;
+}
+
+.login {
+  max-width: 480px;
+  margin: 4rem auto;
+  text-align: center;
+}
+
+.lista-proprietarios {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.lista-proprietarios button {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.papel {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.topo {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-bottom: 1px solid #ddd;
+}
+
+.topo nav {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+}
+
+.topo nav a {
+  color: #333;
+  text-decoration: none;
+}
+
+.topo nav a.active {
+  font-weight: bold;
+  color: #0a5;
+}
+
+main {
+  padding: 1.5rem;
+}
+
+.grade-cartoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.cartao {
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.cartao-valor {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.cartao-titulo {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+.badge {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: white;
+}
+
+.badge-atrasada {
+  background: #c0392b;
+}
+
+.badge-30_dias {
+  background: #e67e22;
+}
+
+.badge-60_dias {
+  background: #f1c40f;
+  color: #333;
+}
+
+.badge-90_dias {
+  background: #3498db;
+}
+
+.badge-quente {
+  background: #c0392b;
+}
+
+.badge-morno {
+  background: #e67e22;
+}
+
+.badge-frio {
+  background: #7f8c8d;
+}
+
+.lista-leads {
+  display: grid;
+  gap: 1rem;
+}
+
+.lead-cartao {
+  background: white;
+  border-left: 4px solid #ccc;
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.lead-quente {
+  border-left-color: #c0392b;
+}
+
+.lead-morno {
+  border-left-color: #e67e22;
+}
+
+.lead-frio {
+  border-left-color: #7f8c8d;
+}
+
+.lead-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.venda-cruzada {
+  background: #eafaf1;
+  padding: 0.5rem;
+  border-radius: 4px;
+  color: #196f3d;
+}
+
+.motivos {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.acoes {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.duplicidade-cartao {
+  background: white;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.erro {
+  color: #c0392b;
+}
+
+.mensagem {
+  background: #eafaf1;
+  padding: 0.5rem;
+  border-radius: 4px;
+  color: #196f3d;
+}

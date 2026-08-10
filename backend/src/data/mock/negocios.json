@@ -1,0 +1,12 @@
+[
+  { "id": "n1", "pessoaEmpresaId": "p1", "proprietarioId": "carlos", "seguradora": "sulamerica", "produto": "saude", "status": "ganho", "dataInicio": "2025-08-10", "mesesVigencia": 12 },
+  { "id": "n2", "pessoaEmpresaId": "p1", "proprietarioId": "bruno", "seguradora": "sulamerica", "produto": "vida", "status": "aberto", "ultimaMovimentacao": "2026-05-10" },
+  { "id": "n3", "pessoaEmpresaId": "p2", "proprietarioId": "ana", "seguradora": "bradesco", "produto": "empresarial", "status": "ganho", "dataInicio": "2025-01-15", "mesesVigencia": 24 },
+  { "id": "n4", "pessoaEmpresaId": "p3", "proprietarioId": "carlos", "seguradora": "amil", "produto": "saude", "status": "ganho", "dataInicio": "2025-11-01", "mesesVigencia": 12 },
+  { "id": "n5", "pessoaEmpresaId": "p4", "proprietarioId": "bruno", "seguradora": "portoseguro", "produto": "empresarial", "status": "ganho", "dataInicio": "2024-09-05", "mesesVigencia": 24 },
+  { "id": "n6", "pessoaEmpresaId": "p5", "proprietarioId": "ana", "seguradora": "bradesco", "produto": "saude", "status": "perdido", "ultimaMovimentacao": "2026-07-20" },
+  { "id": "n7", "pessoaEmpresaId": "p6", "proprietarioId": "carlos", "seguradora": "sulamerica", "produto": "empresarial", "status": "ganho", "dataInicio": "2025-06-20", "mesesVigencia": 12 },
+  { "id": "n8", "pessoaEmpresaId": "p7", "proprietarioId": "bruno", "seguradora": "amil", "produto": "saude", "status": "aberto", "ultimaMovimentacao": "2026-01-20" },
+  { "id": "n9", "pessoaEmpresaId": "p8", "proprietarioId": "ana", "seguradora": "sulamerica", "produto": "vida", "status": "aberto", "propostaEnviada": true, "ultimaMovimentacao": "2026-07-18" },
+  { "id": "n10", "pessoaEmpresaId": "p9", "proprietarioId": "ana", "seguradora": "amil", "produto": "saude", "status": "ganho", "dataInicio": "2026-02-01", "mesesVigencia": 12 }
+]

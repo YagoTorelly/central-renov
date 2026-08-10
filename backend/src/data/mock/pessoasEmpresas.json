@@ -1,0 +1,11 @@
+[
+  { "id": "p1", "tipo": "pessoa", "nome": "Joao Silva", "documento": "11111111111", "telefone": "5511999990001", "email": "joao.silva@example.com" },
+  { "id": "p2", "tipo": "empresa", "nome": "Empresa XPTO Ltda", "documento": "22222222000122", "telefone": "5511999990002", "email": "contato@xpto.example.com" },
+  { "id": "p3", "tipo": "pessoa", "nome": "Maria Souza", "documento": "33333333333", "telefone": "5511999990003", "email": "maria.souza@example.com" },
+  { "id": "p4", "tipo": "empresa", "nome": "Comercio ABC", "documento": "44444444000144", "telefone": "5511999990004", "email": "contato@abc.example.com" },
+  { "id": "p5", "tipo": "pessoa", "nome": "Pedro Lima", "documento": "55555555555", "telefone": "5511999990005", "email": "pedro.lima@example.com" },
+  { "id": "p6", "tipo": "empresa", "nome": "Industria Beta", "documento": "66666666000166", "telefone": "5511999990006", "email": "contato@beta.example.com" },
+  { "id": "p7", "tipo": "pessoa", "nome": "Fernanda Costa", "documento": "77777777777", "telefone": null, "email": null },
+  { "id": "p8", "tipo": "pessoa", "nome": "Ricardo Alves", "documento": "88888888888", "telefone": "5511999990008", "email": "ricardo.alves@example.com" },
+  { "id": "p9", "tipo": "pessoa", "nome": "Joao da Silva", "documento": "11111111111", "telefone": "5511988880009", "email": "j.silva@example.com" }
+]
