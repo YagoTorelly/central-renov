@@ -48,6 +48,11 @@ TEMPO_CONTRATO_MESES = {
 
 STATUS_PIPEDRIVE_PARA_APP = {"won": "ganho", "lost": "perdido", "open": "aberto"}
 
+# Regra de fallback pro tempo de contrato quando o campo esta vazio -
+# confirmada em 2026-08-10, vale so pro produto principal da carteira.
+PRODUTO_SAUDE_PME = "Saúde PME"
+SEGURADORA_VIGENCIA_24_MESES = "portoseguro"
+
 
 def normalizar_documento(valor) -> str:
     if valor is None:
@@ -134,11 +139,30 @@ def mapear_negocio(deal: dict, pessoa_empresa_id: str):
 
     if status_app == "ganho":
         data_vigencia = deal.get(KEY_DATA_VIGENCIA)
-        tempo_contrato = str(deal.get(KEY_TEMPO_CONTRATO) or "")
+        if not data_vigencia:
+            # fallback: data em que o negocio foi marcado como Ganho no
+            # Pipedrive. Decisao confirmada em 2026-08-10 - nem todo negocio
+            # tem a Data de Vigencia/Periodo preenchida.
+            won_time = deal.get("won_time")
+            data_vigencia = won_time[:10] if won_time else None
         if not data_vigencia:
             return None
+
+        tempo_contrato_raw = deal.get(KEY_TEMPO_CONTRATO)
+        if tempo_contrato_raw is None:
+            # campo realmente vazio (diferente de "Indeterminado", que e uma
+            # escolha explicita do vendedor) - so assume um padrao pro
+            # produto principal (Saude PME). Porto Seguro normalmente e
+            # 24 meses, as demais seguradoras 12 meses.
+            if deal.get("_produto_label") == PRODUTO_SAUDE_PME:
+                meses_vigencia = 24 if deal.get("_seguradora_slug") == SEGURADORA_VIGENCIA_24_MESES else 12
+            else:
+                meses_vigencia = None
+        else:
+            meses_vigencia = TEMPO_CONTRATO_MESES.get(str(tempo_contrato_raw))
+
         negocio["dataInicio"] = data_vigencia
-        negocio["mesesVigencia"] = TEMPO_CONTRATO_MESES.get(tempo_contrato)
+        negocio["mesesVigencia"] = meses_vigencia
     else:
         negocio["ultimaMovimentacao"] = (
             deal.get("last_activity_date")

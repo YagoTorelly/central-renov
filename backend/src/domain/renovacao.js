@@ -1,8 +1,13 @@
 const MS_POR_DIA = 1000 * 60 * 60 * 24;
 
-function calcularDataRenovacao(dataInicioISO, mesesVigencia) {
+// A "renovacao" e o gatilho pra COMECAR a trabalhar o contrato, nao a data
+// em que ele de fato vence - decisao confirmada em 2026-08-10: precisa
+// disparar 2 meses antes de completar o prazo (10/12 meses ou 22/24 meses).
+const MESES_ANTECEDENCIA_RENOVACAO = 2;
+
+function calcularDataRenovacao(dataInicioISO, meses) {
   const data = new Date(`${dataInicioISO}T00:00:00`);
-  data.setMonth(data.getMonth() + mesesVigencia);
+  data.setMonth(data.getMonth() + meses);
   return data.toISOString().slice(0, 10);
 }
 
@@ -30,7 +35,8 @@ function calcularRenovacao(negocio, hoje = new Date()) {
   if (negocio.mesesVigencia == null) {
     return { dataRenovacao: null, diasRestantes: null, alerta: null };
   }
-  const dataRenovacao = calcularDataRenovacao(negocio.dataInicio, negocio.mesesVigencia);
+  const mesesAteRenovacao = negocio.mesesVigencia - MESES_ANTECEDENCIA_RENOVACAO;
+  const dataRenovacao = calcularDataRenovacao(negocio.dataInicio, mesesAteRenovacao);
   const diasRestantes = diasAteRenovacao(dataRenovacao, hoje);
   return {
     dataRenovacao,
