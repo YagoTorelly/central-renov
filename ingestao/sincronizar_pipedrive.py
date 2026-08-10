@@ -15,6 +15,7 @@ import os
 import re
 import time
 import urllib.request
+import urllib.error
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -54,15 +55,28 @@ def normalizar_documento(valor) -> str:
     return re.sub(r"\D", "", str(valor))
 
 
-def _get(url: str, tentativas=3) -> dict:
+def _get(url: str, tentativas=5) -> dict:
     corpo = {}
     for tentativa in range(tentativas):
-        with urllib.request.urlopen(url, timeout=30) as resp:
-            corpo = json.loads(resp.read())
-        if corpo.get("success", True):
-            return corpo
-        time.sleep(2 * (tentativa + 1))
-    return corpo
+        try:
+            with urllib.request.urlopen(url, timeout=30) as resp:
+                corpo = json.loads(resp.read())
+            if corpo.get("success", True):
+                return corpo
+        except urllib.error.HTTPError as erro:
+            if erro.code == 429 or erro.code >= 500:
+                pass  # rate limit ou erro transitorio do servidor - tenta de novo
+            else:
+                raise
+        except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError):
+            # inclui timeout no meio da leitura da resposta (TimeoutError puro
+            # nao e subclasse de URLError) e conexao derrubada (OSError) -
+            # tudo tratado como falha transitoria, tenta de novo.
+            pass
+        espera = 2 * (tentativa + 1)
+        print(f"  (tentativa {tentativa + 1}/{tentativas} falhou, esperando {espera}s)")
+        time.sleep(espera)
+    raise RuntimeError(f"Falhou apos {tentativas} tentativas: {url.split('?')[0]}")
 
 
 def buscar_proprietarios(token: str) -> list:
@@ -158,36 +172,41 @@ def sincronizar(seguradoras: list, token: str, limite):
         if isinstance(d.get("person_id"), dict) and not d.get("org_id")
     }
 
+    total_ids = len(org_ids) + len(person_ids)
+    print(f"Buscando detalhes de {len(org_ids)} organizacao(oes) + {len(person_ids)} pessoa(s) = {total_ids} chamada(s)...")
+
     pessoas_empresas = {}
-    for org_id in org_ids:
+    for indice, org_id in enumerate(org_ids, start=1):
         org = _get(f"https://api.pipedrive.com/v1/organizations/{org_id}?api_token={token}")["data"]
         doc = normalizar_documento(org.get(KEY_CNPJ_ORG))
-        if not doc:
-            continue
-        chave = f"org:{org_id}"
-        pessoas_empresas[chave] = {
-            "id": chave,
-            "tipo": "empresa",
-            "nome": org.get("name"),
-            "documento": doc,
-            "telefone": (org.get("phone") or [{}])[0].get("value") if org.get("phone") else None,
-            "email": (org.get("email") or [{}])[0].get("value") if org.get("email") else None,
-        }
+        if doc:
+            chave = f"org:{org_id}"
+            pessoas_empresas[chave] = {
+                "id": chave,
+                "tipo": "empresa",
+                "nome": org.get("name"),
+                "documento": doc,
+                "telefone": (org.get("phone") or [{}])[0].get("value") if org.get("phone") else None,
+                "email": (org.get("email") or [{}])[0].get("value") if org.get("email") else None,
+            }
+        if indice % 100 == 0:
+            print(f"  organizacoes: {indice}/{len(org_ids)}")
 
-    for person_id in person_ids:
+    for indice, person_id in enumerate(person_ids, start=1):
         pessoa = _get(f"https://api.pipedrive.com/v1/persons/{person_id}?api_token={token}")["data"]
         doc = normalizar_documento(pessoa.get(KEY_CPF_PESSOA))
-        if not doc:
-            continue
-        chave = f"person:{person_id}"
-        pessoas_empresas[chave] = {
-            "id": chave,
-            "tipo": "pessoa",
-            "nome": pessoa.get("name"),
-            "documento": doc,
-            "telefone": (pessoa.get("phone") or [{}])[0].get("value") if pessoa.get("phone") else None,
-            "email": (pessoa.get("email") or [{}])[0].get("value") if pessoa.get("email") else None,
-        }
+        if doc:
+            chave = f"person:{person_id}"
+            pessoas_empresas[chave] = {
+                "id": chave,
+                "tipo": "pessoa",
+                "nome": pessoa.get("name"),
+                "documento": doc,
+                "telefone": (pessoa.get("phone") or [{}])[0].get("value") if pessoa.get("phone") else None,
+                "email": (pessoa.get("email") or [{}])[0].get("value") if pessoa.get("email") else None,
+            }
+        if indice % 100 == 0:
+            print(f"  pessoas: {indice}/{len(person_ids)}")
 
     negocios = []
     for deal in todos_deals:
