@@ -29,6 +29,12 @@ KEY_DATA_VIGENCIA = "f5362cd4537daa020fdbe2ac21aa6445f3f6dca1"
 KEY_TEMPO_CONTRATO = "ace415886efe5183da997389e45f1f80af197376"
 KEY_CNPJ_ORG = "1a80c7b84241ad6bac6cf80f18deff3ee69a2ca5"
 KEY_CPF_PESSOA = "b000bb0d79f7b37a76fac0846b26018d48287311"
+# Organizacao NAO tem os campos nativos phone/email (isso so existe em
+# Pessoa) - a WTG usa campos customizados proprios pra isso. Descoberto em
+# 2026-08-11 com o caso da Holden Comunicacao (org tinha telefone/e-mail
+# preenchidos no Pipedrive, mas o sync gravava null pros dois).
+KEY_ORG_EMAIL = "553bbe7fb4378b9fb093b2c1ff297fc06d57d0f2"
+KEY_ORG_TELEFONE = "8afa10585da0f744c12fa50203ed1f3237d6d405"
 
 OPCAO_SITUACAO_CANCELADO = "106"
 
@@ -65,6 +71,15 @@ def normalizar_documento(valor) -> str:
     if valor is None:
         return ""
     return re.sub(r"\D", "", str(valor))
+
+
+def extrair_texto_contato(valor):
+    # Defensivo: a maioria dos campos customizados de telefone/e-mail vem
+    # como string direta, mas alguns tipos do Pipedrive retornam lista de
+    # {label, value, primary} igual ao campo nativo de Pessoa.
+    if isinstance(valor, list):
+        return valor[0].get("value") if valor else None
+    return valor or None
 
 
 def _get(url: str, tentativas=5) -> dict:
@@ -251,8 +266,8 @@ def sincronizar(seguradora_filtro, token: str, limite):
                 "tipo": "empresa",
                 "nome": org.get("name"),
                 "documento": doc,
-                "telefone": (org.get("phone") or [{}])[0].get("value") if org.get("phone") else None,
-                "email": (org.get("email") or [{}])[0].get("value") if org.get("email") else None,
+                "telefone": extrair_texto_contato(org.get(KEY_ORG_TELEFONE)),
+                "email": extrair_texto_contato(org.get(KEY_ORG_EMAIL)),
             }
         if indice % 100 == 0:
             print(f"  organizacoes: {indice}/{len(org_ids)}")
