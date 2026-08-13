@@ -42,6 +42,11 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ novoEmail }),
     }),
+  editarPapel: (proprietarioId, novoPapel) =>
+    pedir(`/api/admin/proprietarios/${proprietarioId}/papel`, {
+      method: "POST",
+      body: JSON.stringify({ novoPapel }),
+    }),
   registrarAtividade: (dados) =>
     pedir("/api/atividades", { method: "POST", body: JSON.stringify(dados) }),
   agendarLembrete: (dados) =>

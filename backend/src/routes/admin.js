@@ -7,6 +7,7 @@ const {
   obterResumoProprietarios,
   redefinirSenha,
   editarEmail,
+  editarPapel,
 } = require("../controllers/adminController");
 const { exigirAdmin } = require("../middlewares/autenticacao");
 
@@ -22,5 +23,6 @@ router.get("/visao-geral", obterVisaoGeral);
 router.get("/resumo-proprietarios", obterResumoProprietarios);
 router.post("/proprietarios/:proprietarioId/senha", redefinirSenha);
 router.post("/proprietarios/:proprietarioId/email", editarEmail);
+router.post("/proprietarios/:proprietarioId/papel", editarPapel);
 
 module.exports = router;

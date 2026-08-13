@@ -2,13 +2,28 @@ const bcrypt = require("bcryptjs");
 const { proprietarioRepository, usuarioRepository } = require("../data/repositories");
 
 const RODADAS_HASH = 10;
+const PAPEIS_VALIDOS = ["admin", "proprietario"];
 
-// E-mail "de verdade" pra login: se o admin editou (emailOverride), usa
-// esse; senao usa o que veio do Pipedrive. Isolado numa funcao pra nunca
-// ter dois lugares calculando isso de jeitos diferentes.
+// E-mail/papel "de verdade": se o admin editou (override), usa esse; senao
+// usa o que veio do Pipedrive. Isolado numa funcao pra nunca ter dois
+// lugares calculando isso de jeitos diferentes.
 async function emailEfetivo(proprietario) {
   const credencial = await usuarioRepository.buscarPorProprietarioId(proprietario.id);
   return ((credencial && credencial.emailOverride) || proprietario.email || "").trim().toLowerCase();
+}
+
+function papelEfetivoDe(proprietario, credencial) {
+  return (credencial && credencial.papelOverride) || proprietario.papel;
+}
+
+// Usado pelo middleware de autenticacao em toda requisicao - se o admin
+// mudar o cargo de alguem, precisa valer na hora, sem a pessoa ter que
+// deslogar e logar de novo (o token nao carrega o papel mais atualizado).
+async function obterPapelEfetivo(proprietarioId) {
+  const proprietario = await proprietarioRepository.buscarPorId(proprietarioId);
+  if (!proprietario) return null;
+  const credencial = await usuarioRepository.buscarPorProprietarioId(proprietarioId);
+  return papelEfetivoDe(proprietario, credencial);
 }
 
 async function listarUsuarios() {
@@ -19,7 +34,7 @@ async function listarUsuarios() {
     usuarios.push({
       id: proprietario.id,
       nome: proprietario.nome,
-      papel: proprietario.papel,
+      papel: papelEfetivoDe(proprietario, credencial),
       email: (credencial && credencial.emailOverride) || proprietario.email,
       emailOriginalPipedrive: proprietario.email,
       temSenha: Boolean(credencial && credencial.senhaHash),
@@ -58,4 +73,18 @@ async function definirEmail(proprietarioId, novoEmail) {
   return usuarioRepository.atualizar(proprietarioId, { emailOverride: email });
 }
 
-module.exports = { listarUsuarios, buscarProprietarioPorEmailLogin, definirSenha, definirEmail };
+async function definirPapel(proprietarioId, novoPapel) {
+  if (!PAPEIS_VALIDOS.includes(novoPapel)) {
+    throw new Error('Papel invalido - use "admin" ou "proprietario"');
+  }
+  return usuarioRepository.atualizar(proprietarioId, { papelOverride: novoPapel });
+}
+
+module.exports = {
+  listarUsuarios,
+  buscarProprietarioPorEmailLogin,
+  obterPapelEfetivo,
+  definirSenha,
+  definirEmail,
+  definirPapel,
+};

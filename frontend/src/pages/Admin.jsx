@@ -167,6 +167,20 @@ function Usuarios({ usuarios, onAtualizado }) {
     }
   }
 
+  async function alterarPapel(usuario, novoPapel) {
+    if (novoPapel === usuario.papel) return;
+    const rotulo = novoPapel === "admin" ? "administrador" : "proprietário";
+    if (!window.confirm(`Tornar ${usuario.nome} ${rotulo}?`)) return;
+    try {
+      await api.editarPapel(usuario.id, novoPapel);
+      setMensagem(`${usuario.nome} agora é ${rotulo}.`);
+      onAtualizado();
+    } catch (e) {
+      setMensagem(null);
+      window.alert(e.message);
+    }
+  }
+
   if (usuarios.length === 0) return <p>Carregando...</p>;
 
   return (
@@ -187,7 +201,12 @@ function Usuarios({ usuarios, onAtualizado }) {
             {usuarios.map((u) => (
               <tr key={u.id}>
                 <td>{u.nome}</td>
-                <td>{u.papel === "admin" ? "Administrador" : "Proprietário"}</td>
+                <td>
+                  <select value={u.papel} onChange={(e) => alterarPapel(u, e.target.value)}>
+                    <option value="proprietario">Proprietário</option>
+                    <option value="admin">Administrador</option>
+                  </select>
+                </td>
                 <td>{u.email || "-"}</td>
                 <td>{u.temSenha ? "Definida" : "Não definida"}</td>
                 <td>

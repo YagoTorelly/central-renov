@@ -14,6 +14,10 @@ async function listarPorProprietario(proprietarioId) {
   return atividades.filter((a) => a.proprietarioId === proprietarioId);
 }
 
+async function listarTodas() {
+  return atividades;
+}
+
 async function criar({ negocioId, proprietarioId, tipo, resultado }) {
   const atividade = {
     id: `a${proximoId++}`,
@@ -27,4 +31,4 @@ async function criar({ negocioId, proprietarioId, tipo, resultado }) {
   return atividade;
 }
 
-module.exports = { listarPorNegocio, listarPorProprietario, criar };
+module.exports = { listarPorNegocio, listarPorProprietario, listarTodas, criar };

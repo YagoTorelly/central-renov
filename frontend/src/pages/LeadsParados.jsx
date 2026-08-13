@@ -20,23 +20,26 @@ export default function LeadsParados() {
   const [busca, setBusca] = useState("");
   const [pagina, setPagina] = useState(1);
   const [searchParams, setSearchParams] = useSearchParams();
-  const { proprietarioId } = useProprietarioAtual();
+  const { proprietarioId, visualizandoComoId } = useProprietarioAtual();
+  const verTodos = visualizandoComoId === "todos";
 
   const filtro = searchParams.get("filtro") || "todos";
 
   useEffect(() => {
     carregar();
-  }, [proprietarioId]);
+  }, [visualizandoComoId]);
 
   useEffect(() => {
     setPagina(1);
   }, [filtro, busca]);
 
   function carregar() {
-    api.leadsParados(proprietarioId).then(setLeads).catch((e) => setErro(e.message));
+    api.leadsParados(visualizandoComoId).then(setLeads).catch((e) => setErro(e.message));
   }
 
   async function registrar(negocioId, tipo) {
+    // usa o proprietario LOGADO (nao o "visualizando como"), mesma logica
+    // do lembrete em Meus Clientes.
     await api.registrarAtividade({ negocioId, proprietarioId, tipo, resultado: "contato iniciado" });
     setMensagem(`Atividade "${tipo}" registrada.`);
     carregar();
@@ -104,6 +107,7 @@ export default function LeadsParados() {
                   <Badge tipo={lead.classificacao}>{lead.classificacao}</Badge>
                 </div>
                 <p className="info-secundaria">
+                  {verTodos && lead.proprietarioNome ? `${lead.proprietarioNome} · ` : ""}
                   {lead.produto} · {lead.seguradora} · {lead.status} · {lead.diasSemMovimentacao} dias sem
                   movimentação
                 </p>

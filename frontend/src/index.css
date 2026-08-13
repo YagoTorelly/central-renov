@@ -704,3 +704,14 @@ tbody tr:last-child td {
   border-color: var(--cor-primaria);
   color: var(--cor-primaria);
 }
+
+.seletor-visualizacao {
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--raio-pequeno);
+  border: 1px solid var(--cor-borda);
+  font-family: var(--fonte);
+  font-size: 0.85rem;
+  color: var(--cor-primaria-escura);
+  font-weight: 600;
+  background: var(--cor-fundo);
+}

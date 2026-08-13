@@ -23,11 +23,12 @@ export default function Atividades() {
   const [erro, setErro] = useState(null);
   const [filtro, setFiltro] = useState("todos");
   const [busca, setBusca] = useState("");
-  const { proprietarioId } = useProprietarioAtual();
+  const { visualizandoComoId } = useProprietarioAtual();
+  const verTodos = visualizandoComoId === "todos";
 
   useEffect(() => {
-    api.atividades(proprietarioId).then(setAtividades).catch((e) => setErro(e.message));
-  }, [proprietarioId]);
+    api.atividades(visualizandoComoId).then(setAtividades).catch((e) => setErro(e.message));
+  }, [visualizandoComoId]);
 
   const filtradas = useMemo(() => {
     let lista = atividades;
@@ -82,6 +83,7 @@ export default function Atividades() {
               <tr>
                 <th>Data</th>
                 <th>Cliente</th>
+                {verTodos && <th>Proprietário</th>}
                 <th>Produto</th>
                 <th>Tipo</th>
                 <th>Resultado</th>
@@ -92,6 +94,7 @@ export default function Atividades() {
                 <tr key={a.id}>
                   <td>{formatarDataBR(a.data)}</td>
                   <td>{a.cliente}</td>
+                  {verTodos && <td>{a.proprietarioNome || "-"}</td>}
                   <td>{a.produto ? `${a.produto}${a.seguradora ? " · " + a.seguradora : ""}` : "-"}</td>
                   <td>{ROTULO_TIPO[a.tipo] || a.tipo}</td>
                   <td>{a.resultado || "-"}</td>

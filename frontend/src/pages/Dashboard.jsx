@@ -6,11 +6,11 @@ import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
 export default function Dashboard() {
   const [dados, setDados] = useState(null);
   const [erro, setErro] = useState(null);
-  const { proprietarioId, proprietarioNome } = useProprietarioAtual();
+  const { proprietarioNome, visualizandoComoId } = useProprietarioAtual();
 
   useEffect(() => {
-    api.dashboard(proprietarioId).then(setDados).catch((e) => setErro(e.message));
-  }, [proprietarioId]);
+    api.dashboard(visualizandoComoId).then(setDados).catch((e) => setErro(e.message));
+  }, [visualizandoComoId]);
 
   if (erro) return <p className="erro">{erro}</p>;
   if (!dados) return <p>Carregando...</p>;
@@ -49,7 +49,11 @@ export default function Dashboard() {
       <div className="cabecalho-pagina">
         <div>
           <h1>Olá, {proprietarioNome?.split(" ")[0]}</h1>
-          <p>Aqui está o resumo da sua carteira hoje. Clique em qualquer número pra ver a lista.</p>
+          <p>
+            {visualizandoComoId === "todos"
+              ? "Resumo da carteira de todos os proprietários. Clique em qualquer número pra ver a lista."
+              : "Aqui está o resumo da carteira hoje. Clique em qualquer número pra ver a lista."}
+          </p>
         </div>
       </div>
       <div className="grade-cartoes">

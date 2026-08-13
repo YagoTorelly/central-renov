@@ -1,11 +1,23 @@
-const { negocioRepository, pessoaEmpresaRepository, lembreteRepository } = require("../data/repositories");
+const {
+  negocioRepository,
+  pessoaEmpresaRepository,
+  lembreteRepository,
+  proprietarioRepository,
+} = require("../data/repositories");
 const { calcularRenovacao } = require("../domain/renovacao");
+
+const VISUALIZAR_TODOS = "todos";
 
 // Aba "Meus Clientes": pessoas/empresas com pelo menos um negocio ganho
 // vinculado a esse proprietario (IDEIA.md - proprietario e do negocio, nao
-// do cadastro da pessoa/empresa).
+// do cadastro da pessoa/empresa). proprietarioId="todos" e um modo especial
+// so pra admin (ver a carteira inteira, com o nome de quem e dono de cada
+// negocio) - decisao confirmada em 2026-08-13.
 async function listarMeusClientes(proprietarioId) {
-  const negocios = await negocioRepository.listarPorProprietario(proprietarioId);
+  const verTodos = proprietarioId === VISUALIZAR_TODOS;
+  const negocios = verTodos
+    ? await negocioRepository.listar()
+    : await negocioRepository.listarPorProprietario(proprietarioId);
   const negociosGanhos = negocios.filter((n) => n.status === "ganho");
 
   const clientes = [];
@@ -13,6 +25,11 @@ async function listarMeusClientes(proprietarioId) {
     const pessoaEmpresa = await pessoaEmpresaRepository.buscarPorId(negocio.pessoaEmpresaId);
     const lembrete = await lembreteRepository.buscarPorNegocio(negocio.id);
     const renovacao = calcularRenovacao(negocio, new Date(), lembrete?.novaDataRenovacao);
+    let proprietarioNome = null;
+    if (verTodos) {
+      const proprietario = await proprietarioRepository.buscarPorId(negocio.proprietarioId);
+      proprietarioNome = proprietario?.nome || null;
+    }
     clientes.push({
       negocioId: negocio.id,
       pessoaEmpresaId: pessoaEmpresa.id,
@@ -26,6 +43,7 @@ async function listarMeusClientes(proprietarioId) {
       dataInicio: negocio.dataInicio,
       mesesVigencia: negocio.mesesVigencia,
       lembreteMotivo: lembrete?.motivo || null,
+      proprietarioNome,
       ...renovacao,
     });
   }

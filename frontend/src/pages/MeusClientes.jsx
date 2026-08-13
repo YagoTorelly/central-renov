@@ -27,7 +27,8 @@ export default function MeusClientes() {
   const [busca, setBusca] = useState("");
   const [pagina, setPagina] = useState(1);
   const [searchParams, setSearchParams] = useSearchParams();
-  const { proprietarioId } = useProprietarioAtual();
+  const { proprietarioId, visualizandoComoId } = useProprietarioAtual();
+  const verTodos = visualizandoComoId === "todos";
 
   const [clienteEmEdicao, setClienteEmEdicao] = useState(null);
   const [meses, setMeses] = useState(3);
@@ -39,14 +40,14 @@ export default function MeusClientes() {
 
   useEffect(() => {
     carregar();
-  }, [proprietarioId]);
+  }, [visualizandoComoId]);
 
   useEffect(() => {
     setPagina(1);
   }, [filtro, busca]);
 
   function carregar() {
-    api.meusClientes(proprietarioId).then(setClientes).catch((e) => setErro(e.message));
+    api.meusClientes(visualizandoComoId).then(setClientes).catch((e) => setErro(e.message));
   }
 
   function abrirModal(cliente) {
@@ -62,6 +63,8 @@ export default function MeusClientes() {
   async function confirmarAdiamento() {
     setSalvando(true);
     try {
+      // usa o proprietario LOGADO (nao o "visualizando como"), pra registrar
+      // quem de fato tomou a acao, mesmo quando o admin esta olhando "todos".
       await api.agendarLembrete({
         negocioId: clienteEmEdicao.negocioId,
         proprietarioId,
@@ -143,6 +146,7 @@ export default function MeusClientes() {
               <thead>
                 <tr>
                   <th>Cliente</th>
+                  {verTodos && <th>Proprietário</th>}
                   <th>Tipo</th>
                   <th>Produto</th>
                   <th>Início</th>
@@ -156,6 +160,7 @@ export default function MeusClientes() {
                 {visiveis.map((c) => (
                   <tr key={c.negocioId}>
                     <td>{c.nome}</td>
+                    {verTodos && <td>{c.proprietarioNome || "-"}</td>}
                     <td>{c.tipo === "empresa" ? "Empresa" : "Pessoa"}</td>
                     <td>{c.produto}</td>
                     <td>{formatarDataBR(c.dataInicio)}</td>

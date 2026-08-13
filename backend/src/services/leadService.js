@@ -1,7 +1,8 @@
-const { negocioRepository, pessoaEmpresaRepository } = require("../data/repositories");
+const { negocioRepository, pessoaEmpresaRepository, proprietarioRepository } = require("../data/repositories");
 const { classificarLead } = require("../domain/leadScoring");
 
 const MS_POR_DIA = 1000 * 60 * 60 * 24;
+const VISUALIZAR_TODOS = "todos";
 
 function diasSemMovimentacao(ultimaMovimentacaoISO, hoje = new Date()) {
   const ultima = new Date(`${ultimaMovimentacaoISO}T00:00:00`);
@@ -13,9 +14,13 @@ function diasSemMovimentacao(ultimaMovimentacaoISO, hoje = new Date()) {
 // e descartado ja na sincronizacao (nao chega a virar cache) - decisao
 // confirmada em 2026-08-13. Cruza com negocios ganhos da MESMA pessoa/
 // empresa em QUALQUER proprietario pra detectar venda cruzada (exemplo do
-// IDEIA.md: saude ganho com A, vida parado com B).
+// IDEIA.md: saude ganho com A, vida parado com B). proprietarioId="todos"
+// e o modo agregado so pra admin.
 async function listarLeadsParados(proprietarioId) {
-  const negociosDoProprietario = await negocioRepository.listarPorProprietario(proprietarioId);
+  const verTodos = proprietarioId === VISUALIZAR_TODOS;
+  const negociosDoProprietario = verTodos
+    ? await negocioRepository.listar()
+    : await negocioRepository.listarPorProprietario(proprietarioId);
   const candidatos = negociosDoProprietario.filter((n) => n.status === "aberto");
 
   const leads = [];
@@ -34,6 +39,12 @@ async function listarLeadsParados(proprietarioId) {
       diasSemMovimentacao: dias,
     });
 
+    let proprietarioNome = null;
+    if (verTodos) {
+      const proprietario = await proprietarioRepository.buscarPorId(negocio.proprietarioId);
+      proprietarioNome = proprietario?.nome || null;
+    }
+
     leads.push({
       negocioId: negocio.id,
       pessoaEmpresaId: pessoaEmpresa.id,
@@ -47,6 +58,7 @@ async function listarLeadsParados(proprietarioId) {
       classificacao,
       pontuacao,
       motivos,
+      proprietarioNome,
       oportunidadeVendaCruzada: negocioGanhoEmOutroProduto
         ? {
             mensagem: `Cliente ativo em ${negocioGanhoEmOutroProduto.produto}. Oportunidade parada em ${negocio.produto}.`,

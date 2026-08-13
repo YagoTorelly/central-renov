@@ -1,7 +1,7 @@
 const { proprietarioRepository } = require("../data/repositories");
 const { listarPossiveisDuplicidades } = require("../services/duplicidadeService");
 const { montarVisaoGeral, montarResumoPorProprietario } = require("../services/relatorioService");
-const { listarUsuarios, definirSenha, definirEmail } = require("../services/usuarioService");
+const { listarUsuarios, definirSenha, definirEmail, definirPapel } = require("../services/usuarioService");
 
 async function obterProprietarios(req, res, next) {
   try {
@@ -66,6 +66,15 @@ async function editarEmail(req, res, next) {
   }
 }
 
+async function editarPapel(req, res, next) {
+  try {
+    const atualizado = await definirPapel(req.params.proprietarioId, req.body.novoPapel);
+    res.json({ ok: true, papel: atualizado.papelOverride });
+  } catch (error) {
+    res.status(400).json({ erro: error.message });
+  }
+}
+
 module.exports = {
   obterProprietarios,
   obterUsuarios,
@@ -74,4 +83,5 @@ module.exports = {
   obterResumoProprietarios,
   redefinirSenha,
   editarEmail,
+  editarPapel,
 };
