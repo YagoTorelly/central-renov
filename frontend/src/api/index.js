@@ -31,6 +31,17 @@ export const api = {
   duplicidades: () => pedir("/api/admin/duplicidades"),
   visaoGeral: () => pedir("/api/admin/visao-geral"),
   resumoProprietarios: () => pedir("/api/admin/resumo-proprietarios"),
+  usuarios: () => pedir("/api/admin/usuarios"),
+  redefinirSenha: (proprietarioId, novaSenha) =>
+    pedir(`/api/admin/proprietarios/${proprietarioId}/senha`, {
+      method: "POST",
+      body: JSON.stringify({ novaSenha }),
+    }),
+  editarEmail: (proprietarioId, novoEmail) =>
+    pedir(`/api/admin/proprietarios/${proprietarioId}/email`, {
+      method: "POST",
+      body: JSON.stringify({ novoEmail }),
+    }),
   registrarAtividade: (dados) =>
     pedir("/api/atividades", { method: "POST", body: JSON.stringify(dados) }),
   agendarLembrete: (dados) =>

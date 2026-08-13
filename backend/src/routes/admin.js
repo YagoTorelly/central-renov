@@ -1,10 +1,12 @@
 const express = require("express");
 const {
   obterProprietarios,
+  obterUsuarios,
   obterDuplicidades,
   obterVisaoGeral,
   obterResumoProprietarios,
   redefinirSenha,
+  editarEmail,
 } = require("../controllers/adminController");
 const { exigirAdmin } = require("../middlewares/autenticacao");
 
@@ -14,9 +16,11 @@ const router = express.Router();
 router.use(exigirAdmin);
 
 router.get("/proprietarios", obterProprietarios);
+router.get("/usuarios", obterUsuarios);
 router.get("/duplicidades", obterDuplicidades);
 router.get("/visao-geral", obterVisaoGeral);
 router.get("/resumo-proprietarios", obterResumoProprietarios);
 router.post("/proprietarios/:proprietarioId/senha", redefinirSenha);
+router.post("/proprietarios/:proprietarioId/email", editarEmail);
 
 module.exports = router;

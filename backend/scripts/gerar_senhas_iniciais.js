@@ -5,7 +5,7 @@
 //
 // Uso: node scripts/gerar_senhas_iniciais.js
 const { proprietarioRepository, usuarioRepository } = require("../src/data/repositories");
-const { definirSenha } = require("../src/services/authService");
+const { definirSenha } = require("../src/services/usuarioService");
 
 const CARACTERES = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789"; // sem 0/O/1/l/I
 
@@ -23,7 +23,7 @@ async function main() {
 
   for (const proprietario of proprietarios) {
     const existente = await usuarioRepository.buscarPorProprietarioId(proprietario.id);
-    if (existente) {
+    if (existente && existente.senhaHash) {
       console.log(`(pulado, ja tem senha) ${proprietario.nome}`);
       continue;
     }
