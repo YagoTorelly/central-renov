@@ -19,6 +19,8 @@ export const api = {
   leadsParados: (proprietarioId) => pedir(`/api/leads/${proprietarioId}`),
   atividades: (proprietarioId) => pedir(`/api/atividades/${proprietarioId}`),
   duplicidades: () => pedir("/api/admin/duplicidades"),
+  visaoGeral: () => pedir("/api/admin/visao-geral"),
+  resumoProprietarios: () => pedir("/api/admin/resumo-proprietarios"),
   registrarAtividade: (dados) =>
     pedir("/api/atividades", { method: "POST", body: JSON.stringify(dados) }),
   agendarLembrete: (dados) =>

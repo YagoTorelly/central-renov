@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "../api";
 import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
 import { formatarDataBR } from "../utils/formatarData";
@@ -10,14 +10,32 @@ const ROTULO_TIPO = {
   lembrete: "Lembrete adiado",
 };
 
+const FILTROS = [
+  { chave: "todos", rotulo: "Todos" },
+  { chave: "whatsapp", rotulo: "WhatsApp" },
+  { chave: "ligacao", rotulo: "Ligação" },
+  { chave: "email", rotulo: "E-mail" },
+  { chave: "lembrete", rotulo: "Lembretes" },
+];
+
 export default function Atividades() {
   const [atividades, setAtividades] = useState([]);
   const [erro, setErro] = useState(null);
+  const [filtro, setFiltro] = useState("todos");
+  const [busca, setBusca] = useState("");
   const { proprietarioId } = useProprietarioAtual();
 
   useEffect(() => {
     api.atividades(proprietarioId).then(setAtividades).catch((e) => setErro(e.message));
   }, [proprietarioId]);
+
+  const filtradas = useMemo(() => {
+    let lista = atividades;
+    if (filtro !== "todos") lista = lista.filter((a) => a.tipo === filtro);
+    const termo = busca.trim().toLowerCase();
+    if (termo) lista = lista.filter((a) => a.cliente.toLowerCase().includes(termo));
+    return lista;
+  }, [atividades, filtro, busca]);
 
   if (erro) return <p className="erro">{erro}</p>;
 
@@ -26,25 +44,61 @@ export default function Atividades() {
       <div className="cabecalho-pagina">
         <div>
           <h1>Atividades</h1>
-          <p>Histórico de contatos registrados a partir da tela de Leads Parados.</p>
+          <p>Histórico de contatos e lembretes registrados por você.</p>
         </div>
       </div>
 
-      {atividades.length === 0 ? (
+      <div className="barra-filtros">
+        {FILTROS.map((f) => (
+          <button
+            key={f.chave}
+            className={`chip ${filtro === f.chave ? "ativo" : ""}`}
+            onClick={() => setFiltro(f.chave)}
+          >
+            {f.rotulo}
+          </button>
+        ))}
+        <input
+          className="campo-busca"
+          placeholder="Buscar por cliente..."
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+        />
+      </div>
+
+      <p className="contador-resultados">
+        {filtradas.length} atividade{filtradas.length === 1 ? "" : "s"} encontrada{filtradas.length === 1 ? "" : "s"}
+      </p>
+
+      {filtradas.length === 0 ? (
         <div className="estado-vazio">
           <span className="icone">📞</span>
-          Nenhum contato registrado ainda. Registre pela tela de Leads Parados.
+          Nenhuma atividade encontrada com esse filtro.
         </div>
       ) : (
-        <div className="lista-atividades">
-          {atividades.map((a) => (
-            <div className="atividade-linha" key={a.id}>
-              <span className="atividade-data">{formatarDataBR(a.data)}</span>
-              <span>{a.cliente}</span>
-              <span className="atividade-tipo">{ROTULO_TIPO[a.tipo] || a.tipo}</span>
-              <span>{a.resultado || "-"}</span>
-            </div>
-          ))}
+        <div className="tabela-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Cliente</th>
+                <th>Produto</th>
+                <th>Tipo</th>
+                <th>Resultado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtradas.map((a) => (
+                <tr key={a.id}>
+                  <td>{formatarDataBR(a.data)}</td>
+                  <td>{a.cliente}</td>
+                  <td>{a.produto ? `${a.produto}${a.seguradora ? " · " + a.seguradora : ""}` : "-"}</td>
+                  <td>{ROTULO_TIPO[a.tipo] || a.tipo}</td>
+                  <td>{a.resultado || "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
