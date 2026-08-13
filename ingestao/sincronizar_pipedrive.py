@@ -156,6 +156,12 @@ def mapear_negocio(deal: dict, pessoa_empresa_id: str):
     if status_app is None:
         return None
 
+    # Negocio perdido nao entra mais na Central - nem em Meus Clientes (nunca
+    # entrou) nem em Leads Parados (entrava antes). Decisao confirmada em
+    # 2026-08-13: so "aberto" conta como lead parado reativavel.
+    if status_app == "perdido":
+        return None
+
     negocio = {
         "id": f"pd_{deal['id']}",
         "pessoaEmpresaId": pessoa_empresa_id,

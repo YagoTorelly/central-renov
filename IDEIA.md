@@ -88,10 +88,9 @@ Se a "Situação" do negócio no Pipedrive estiver marcada como "Cancelado", o n
 
 ## Aba "Leads Parados"
 
-Não é só negócio perdido — reúne oportunidades que ainda podem gerar venda. Um lead entra nessa aba quando atender pelo menos uma condição:
+Reúne oportunidades que ainda podem gerar venda. Negócio marcado como "Perdido" no Pipedrive é descartado (decisão confirmada em 2026-08-13 - não entra em nenhuma tela, nem aqui). Um lead entra nessa aba quando atender pelo menos uma condição:
 
 - possui negócio aberto sem movimentação há X tempo;
-- possui negócio perdido;
 - recebeu proposta mas não respondeu;
 - não possui pessoa nem empresa corretamente vinculada;
 - possui cadastro mas nunca teve negócio ganho;
@@ -103,7 +102,7 @@ Não é só negócio perdido — reúne oportunidades que ainda podem gerar vend
 
 ### Classificação dos leads (pontuação)
 
-**Lead quente:** já é cliente da corretora; tem telefone/WhatsApp; negócio perdido recente; contrato próximo do vencimento; respondeu antes; tem outros produtos ativos.
+**Lead quente:** já é cliente da corretora; tem telefone/WhatsApp; contrato próximo do vencimento; respondeu antes; tem outros produtos ativos.
 
 **Lead morno:** cadastro completo; negócio antigo; nunca teve negócio ganho; tem e-mail ou telefone válido.
 
@@ -210,6 +209,6 @@ A troca de fonte de dados (mock / dados reais do Pipedrive / banco definitivo no
 
 ## Sincronização com o Pipedrive
 
-`ingestao/sincronizar_pipedrive.py` busca a carteira inteira: todas as seguradoras cadastradas no Pipedrive (não um recorte fixo), qualquer negócio aberto, ganho ou perdido, aplicando as regras descritas na seção "Meus Clientes" (fallbacks de início/vigência, corte de cancelados, renovação com antecedência). Envia o resultado pro backend via `POST /api/sync/pipedrive`, autenticado por um segredo compartilhado (`CRON_SECRET`), que grava em `backend/src/data/cache/`.
+`ingestao/sincronizar_pipedrive.py` busca a carteira inteira: todas as seguradoras cadastradas no Pipedrive (não um recorte fixo), negócio aberto ou ganho (perdido é descartado - decisão confirmada em 2026-08-13), aplicando as regras descritas na seção "Meus Clientes" (fallbacks de início/vigência, corte de cancelados e de "endosso", duplicidade exata, renovação com antecedência). Envia o resultado pro backend via `POST /api/sync/pipedrive`, autenticado por um segredo compartilhado (`CRON_SECRET`), que grava em `backend/src/data/cache/`.
 
 Hoje é rodado manualmente. O próximo passo é automatizar via GitHub Actions com um runner dedicado, no mesmo padrão já usado nas integrações do sistema_financeiro.

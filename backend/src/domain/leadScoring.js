@@ -17,10 +17,6 @@ function classificarLead({ pessoaEmpresa, negocio, jaClienteEmOutroProduto, dias
     pontuacao += 1;
     motivos.push("tem e-mail cadastrado");
   }
-  if (negocio.status === "perdido" && diasSemMovimentacao <= 60) {
-    pontuacao += 2;
-    motivos.push("negocio perdido recente");
-  }
   if (negocio.propostaEnviada) {
     pontuacao += 1;
     motivos.push("recebeu proposta");

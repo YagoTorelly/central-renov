@@ -9,13 +9,14 @@ function diasSemMovimentacao(ultimaMovimentacaoISO, hoje = new Date()) {
   return Math.round((hojeSemHora - ultima) / MS_POR_DIA);
 }
 
-// Aba "Leads Parados": negocios abertos ou perdidos desse proprietario.
-// Cruza com negocios ganhos da MESMA pessoa/empresa em QUALQUER proprietario
-// pra detectar venda cruzada (exemplo do IDEIA.md: saude ganho com A, vida
-// parado com B).
+// Aba "Leads Parados": negocios abertos desse proprietario. Negocio perdido
+// e descartado ja na sincronizacao (nao chega a virar cache) - decisao
+// confirmada em 2026-08-13. Cruza com negocios ganhos da MESMA pessoa/
+// empresa em QUALQUER proprietario pra detectar venda cruzada (exemplo do
+// IDEIA.md: saude ganho com A, vida parado com B).
 async function listarLeadsParados(proprietarioId) {
   const negociosDoProprietario = await negocioRepository.listarPorProprietario(proprietarioId);
-  const candidatos = negociosDoProprietario.filter((n) => n.status === "aberto" || n.status === "perdido");
+  const candidatos = negociosDoProprietario.filter((n) => n.status === "aberto");
 
   const leads = [];
   for (const negocio of candidatos) {
