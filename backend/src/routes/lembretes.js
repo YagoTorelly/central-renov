@@ -1,7 +1,8 @@
 const express = require("express");
 const { criarLembrete } = require("../controllers/lembreteController");
+const { exigirProprioOuAdmin } = require("../middlewares/autenticacao");
 
 const router = express.Router();
-router.post("/", criarLembrete);
+router.post("/", exigirProprioOuAdmin, criarLembrete);
 
 module.exports = router;

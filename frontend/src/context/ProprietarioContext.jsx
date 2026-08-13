@@ -1,34 +1,38 @@
 import { createContext, useState } from "react";
 
+const CHAVE_TOKEN = "central_renov_token";
 const CHAVE_ID = "central_renov_proprietario_id";
 const CHAVE_NOME = "central_renov_proprietario_nome";
 const CHAVE_PAPEL = "central_renov_proprietario_papel";
 
 export const ProprietarioContext = createContext(null);
 
-// Login "de mentira" ate termos autenticacao real (Supabase Auth/JWT):
-// guarda o proprietario escolhido em contexto (com persistencia simples em
-// localStorage pra sobreviver a um F5) em vez de acoplar cada pagina direto
-// no navegador. Guarda nome/papel tambem - o id do Pipedrive sozinho nao
-// diz nada pra quem esta usando o sistema.
+// Login de verdade (e-mail + senha, token JWT) desde 2026-08-13. O token
+// e o que autentica cada chamada (ver api/index.js); id/nome/papel ficam
+// aqui so pra exibir na tela sem precisar decodificar o token toda hora.
 export function ProprietarioProvider({ children }) {
+  const [token, setToken] = useState(() => localStorage.getItem(CHAVE_TOKEN));
   const [proprietarioId, setProprietarioId] = useState(() => localStorage.getItem(CHAVE_ID));
   const [proprietarioNome, setProprietarioNome] = useState(() => localStorage.getItem(CHAVE_NOME));
   const [proprietarioPapel, setProprietarioPapel] = useState(() => localStorage.getItem(CHAVE_PAPEL));
 
-  function entrar({ id, nome, papel }) {
-    localStorage.setItem(CHAVE_ID, id);
-    localStorage.setItem(CHAVE_NOME, nome);
-    localStorage.setItem(CHAVE_PAPEL, papel);
-    setProprietarioId(id);
-    setProprietarioNome(nome);
-    setProprietarioPapel(papel);
+  function entrar({ token, proprietario }) {
+    localStorage.setItem(CHAVE_TOKEN, token);
+    localStorage.setItem(CHAVE_ID, proprietario.id);
+    localStorage.setItem(CHAVE_NOME, proprietario.nome);
+    localStorage.setItem(CHAVE_PAPEL, proprietario.papel);
+    setToken(token);
+    setProprietarioId(proprietario.id);
+    setProprietarioNome(proprietario.nome);
+    setProprietarioPapel(proprietario.papel);
   }
 
   function sair() {
+    localStorage.removeItem(CHAVE_TOKEN);
     localStorage.removeItem(CHAVE_ID);
     localStorage.removeItem(CHAVE_NOME);
     localStorage.removeItem(CHAVE_PAPEL);
+    setToken(null);
     setProprietarioId(null);
     setProprietarioNome(null);
     setProprietarioPapel(null);
@@ -36,7 +40,7 @@ export function ProprietarioProvider({ children }) {
 
   return (
     <ProprietarioContext.Provider
-      value={{ proprietarioId, proprietarioNome, proprietarioPapel, entrar, sair }}
+      value={{ token, proprietarioId, proprietarioNome, proprietarioPapel, entrar, sair }}
     >
       {children}
     </ProprietarioContext.Provider>

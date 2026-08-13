@@ -2,7 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const { port, dataSource } = require("./config/env");
 const { errorHandler } = require("./middlewares/errorHandler");
+const { exigirLogin } = require("./middlewares/autenticacao");
 
+const authRoutes = require("./routes/auth");
 const dashboardRoutes = require("./routes/dashboard");
 const clientesRoutes = require("./routes/clientes");
 const leadsRoutes = require("./routes/leads");
@@ -17,15 +19,20 @@ app.use(cors());
 // milhares de negocios de uma vez so.
 app.use(express.json({ limit: "20mb" }));
 
+app.get("/api/health", (req, res) => res.json({ ok: true }));
+// login nao exige login (obvio) - sync tem autenticacao propria via
+// CRON_SECRET (job automatizado, nao um usuario logado).
+app.use("/api/auth", authRoutes);
+app.use("/api/sync", syncRoutes);
+
+// Tudo daqui pra baixo exige um token valido.
+app.use("/api", exigirLogin);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/clientes", clientesRoutes);
 app.use("/api/leads", leadsRoutes);
 app.use("/api/atividades", atividadesRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/sync", syncRoutes);
 app.use("/api/lembretes", lembretesRoutes);
-
-app.get("/api/health", (req, res) => res.json({ ok: true }));
 
 app.use(errorHandler);
 

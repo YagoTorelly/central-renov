@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
@@ -13,7 +13,7 @@ const PONTOS_EXPLICACAO = [
   {
     icone: "🔁",
     titulo: "Leads que ainda podem virar venda",
-    texto: "Negócios parados ou perdidos são organizados por chance de conversão, com o motivo explicado.",
+    texto: "Negócios parados são organizados por chance de conversão, com o motivo explicado.",
   },
   {
     icone: "🔗",
@@ -27,21 +27,27 @@ const PONTOS_EXPLICACAO = [
   },
 ];
 
-// Login "de mentira" ate termos autenticacao real (Supabase Auth/JWT):
-// so escolher um proprietario da lista simula a sessao dele.
 export default function Login() {
-  const [proprietarios, setProprietarios] = useState([]);
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
   const [erro, setErro] = useState(null);
+  const [entrando, setEntrando] = useState(false);
   const { entrar } = useProprietarioAtual();
   const navegar = useNavigate();
 
-  useEffect(() => {
-    api.proprietarios().then(setProprietarios).catch((e) => setErro(e.message));
-  }, []);
-
-  function selecionar(proprietario) {
-    entrar(proprietario);
-    navegar("/dashboard");
+  async function enviar(evento) {
+    evento.preventDefault();
+    setErro(null);
+    setEntrando(true);
+    try {
+      const resultado = await api.login(email, senha);
+      entrar(resultado);
+      navegar("/dashboard");
+    } catch (e) {
+      setErro(e.message);
+    } finally {
+      setEntrando(false);
+    }
   }
 
   return (
@@ -67,18 +73,34 @@ export default function Login() {
 
       <div className="login-selecao">
         <h2>Entrar</h2>
-        <p>Selecione seu usuário (login simulado, sem senha ainda):</p>
-        {erro && <p className="erro">Não foi possível falar com o backend: {erro}</p>}
-        <ul className="lista-proprietarios">
-          {proprietarios.map((p) => (
-            <li key={p.id}>
-              <button onClick={() => selecionar(p)}>
-                {p.nome}
-                <span className="papel">{p.papel === "admin" ? "administrador" : "proprietário"}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
+        <p>Use o e-mail da WTG e a senha que foi entregue pra você.</p>
+        {erro && <p className="erro">{erro}</p>}
+        <form onSubmit={enviar} className="campo-formulario" style={{ display: "grid", gap: "0.8rem" }}>
+          <div>
+            <label>E-mail</label>
+            <input
+              type="email"
+              required
+              autoComplete="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seunome@wtgseguros.com.br"
+            />
+          </div>
+          <div>
+            <label>Senha</label>
+            <input
+              type="password"
+              required
+              autoComplete="current-password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+            />
+          </div>
+          <button className="botao botao-primario" type="submit" disabled={entrando}>
+            {entrando ? "Entrando..." : "Entrar"}
+          </button>
+        </form>
       </div>
     </div>
   );

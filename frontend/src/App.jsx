@@ -9,10 +9,8 @@ import Atividades from "./pages/Atividades";
 import { useProprietarioAtual } from "./hooks/useProprietarioAtual";
 
 function RotaProtegida({ children }) {
-  const { proprietarioId, proprietarioNome } = useProprietarioAtual();
-  // exige os dois - protege contra sessao antiga no localStorage de antes do
-  // contexto passar a guardar nome/papel junto com o id.
-  return proprietarioId && proprietarioNome ? children : <Navigate to="/" replace />;
+  const { token, proprietarioId } = useProprietarioAtual();
+  return token && proprietarioId ? children : <Navigate to="/" replace />;
 }
 
 export default function App() {

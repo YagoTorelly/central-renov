@@ -1,6 +1,7 @@
 const { proprietarioRepository } = require("../data/repositories");
 const { listarPossiveisDuplicidades } = require("../services/duplicidadeService");
 const { montarVisaoGeral, montarResumoPorProprietario } = require("../services/relatorioService");
+const { definirSenha } = require("../services/authService");
 
 async function obterProprietarios(req, res, next) {
   try {
@@ -38,4 +39,19 @@ async function obterResumoProprietarios(req, res, next) {
   }
 }
 
-module.exports = { obterProprietarios, obterDuplicidades, obterVisaoGeral, obterResumoProprietarios };
+async function redefinirSenha(req, res, next) {
+  try {
+    await definirSenha(req.params.proprietarioId, req.body.novaSenha);
+    res.json({ ok: true });
+  } catch (error) {
+    res.status(400).json({ erro: error.message });
+  }
+}
+
+module.exports = {
+  obterProprietarios,
+  obterDuplicidades,
+  obterVisaoGeral,
+  obterResumoProprietarios,
+  redefinirSenha,
+};
