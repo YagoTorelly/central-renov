@@ -7,6 +7,7 @@ const ROTULO_TIPO = {
   whatsapp: "WhatsApp",
   ligacao: "Ligação",
   email: "E-mail",
+  lembrete: "Lembrete adiado",
 };
 
 export default function Atividades() {

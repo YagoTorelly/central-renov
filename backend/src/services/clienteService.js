@@ -1,4 +1,4 @@
-const { negocioRepository, pessoaEmpresaRepository } = require("../data/repositories");
+const { negocioRepository, pessoaEmpresaRepository, lembreteRepository } = require("../data/repositories");
 const { calcularRenovacao } = require("../domain/renovacao");
 
 // Aba "Meus Clientes": pessoas/empresas com pelo menos um negocio ganho
@@ -11,7 +11,8 @@ async function listarMeusClientes(proprietarioId) {
   const clientes = [];
   for (const negocio of negociosGanhos) {
     const pessoaEmpresa = await pessoaEmpresaRepository.buscarPorId(negocio.pessoaEmpresaId);
-    const renovacao = calcularRenovacao(negocio);
+    const lembrete = await lembreteRepository.buscarPorNegocio(negocio.id);
+    const renovacao = calcularRenovacao(negocio, new Date(), lembrete?.novaDataRenovacao);
     clientes.push({
       negocioId: negocio.id,
       pessoaEmpresaId: pessoaEmpresa.id,
@@ -24,6 +25,7 @@ async function listarMeusClientes(proprietarioId) {
       produto: negocio.produto,
       dataInicio: negocio.dataInicio,
       mesesVigencia: negocio.mesesVigencia,
+      lembreteMotivo: lembrete?.motivo || null,
       ...renovacao,
     });
   }

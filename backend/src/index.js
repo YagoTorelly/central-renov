@@ -9,6 +9,7 @@ const leadsRoutes = require("./routes/leads");
 const atividadesRoutes = require("./routes/atividades");
 const adminRoutes = require("./routes/admin");
 const syncRoutes = require("./routes/sync");
+const lembretesRoutes = require("./routes/lembretes");
 
 const app = express();
 app.use(cors());
@@ -22,6 +23,7 @@ app.use("/api/leads", leadsRoutes);
 app.use("/api/atividades", atividadesRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/sync", syncRoutes);
+app.use("/api/lembretes", lembretesRoutes);
 
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 

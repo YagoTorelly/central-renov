@@ -5,6 +5,7 @@ import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
 import { ROTULO_ALERTA_RENOVACAO } from "../data/rotulos";
 import { formatarDataBR } from "../utils/formatarData";
 import Badge from "../components/ui/Badge";
+import Modal from "../components/ui/Modal";
 
 const POR_PAGINA = 25;
 
@@ -13,6 +14,8 @@ const FILTROS = [
   { chave: "proximas", rotulo: "Renovação próxima" },
   { chave: "atrasadas", rotulo: "Atrasadas" },
 ];
+
+const OPCOES_MESES = [1, 2, 3, 6, 12];
 
 function normalizarBusca(texto) {
   return texto.trim().toLowerCase();
@@ -26,15 +29,54 @@ export default function MeusClientes() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { proprietarioId } = useProprietarioAtual();
 
+  const [clienteEmEdicao, setClienteEmEdicao] = useState(null);
+  const [meses, setMeses] = useState(3);
+  const [motivo, setMotivo] = useState("");
+  const [salvando, setSalvando] = useState(false);
+  const [mensagem, setMensagem] = useState(null);
+
   const filtro = searchParams.get("filtro") || "todos";
 
   useEffect(() => {
-    api.meusClientes(proprietarioId).then(setClientes).catch((e) => setErro(e.message));
+    carregar();
   }, [proprietarioId]);
 
   useEffect(() => {
     setPagina(1);
   }, [filtro, busca]);
+
+  function carregar() {
+    api.meusClientes(proprietarioId).then(setClientes).catch((e) => setErro(e.message));
+  }
+
+  function abrirModal(cliente) {
+    setClienteEmEdicao(cliente);
+    setMeses(3);
+    setMotivo("");
+  }
+
+  function fecharModal() {
+    setClienteEmEdicao(null);
+  }
+
+  async function confirmarAdiamento() {
+    setSalvando(true);
+    try {
+      await api.agendarLembrete({
+        negocioId: clienteEmEdicao.negocioId,
+        proprietarioId,
+        meses,
+        motivo,
+      });
+      setMensagem(`Renovação de ${clienteEmEdicao.nome} adiada em ${meses} mês(es).`);
+      fecharModal();
+      carregar();
+    } catch (e) {
+      setErro(e.message);
+    } finally {
+      setSalvando(false);
+    }
+  }
 
   const filtrados = useMemo(() => {
     let lista = clientes;
@@ -64,6 +106,8 @@ export default function MeusClientes() {
           <p>Clientes com pelo menos um contrato ativo com você.</p>
         </div>
       </div>
+
+      {mensagem && <p className="mensagem">{mensagem}</p>}
 
       <div className="barra-filtros">
         {FILTROS.map((f) => (
@@ -105,6 +149,7 @@ export default function MeusClientes() {
                   <th>Renovação</th>
                   <th>Alerta</th>
                   <th>Contato</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -121,8 +166,18 @@ export default function MeusClientes() {
                       ) : (
                         "-"
                       )}
+                      {c.ajustadaManualmente && (
+                        <span className="badge-manual" title={c.lembreteMotivo || "Renovação adiada manualmente"}>
+                          🔔 adiada
+                        </span>
+                      )}
                     </td>
                     <td>{c.telefone ? "WhatsApp" : c.email ? "E-mail" : "-"}</td>
+                    <td>
+                      <button className="botao-icone" onClick={() => abrirModal(c)}>
+                        Adiar renovação
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -143,6 +198,48 @@ export default function MeusClientes() {
           )}
         </>
       )}
+
+      <Modal titulo="Adiar renovação" aberto={Boolean(clienteEmEdicao)} onFechar={fecharModal}>
+        <p style={{ margin: 0, fontSize: "0.88rem", color: "var(--cor-texto-suave)" }}>
+          Cliente <strong>{clienteEmEdicao?.nome}</strong> confirmou que vai continuar no plano atual. Daqui a
+          quantos meses o vendedor deve ser lembrado de novo?
+        </p>
+
+        <div className="campo-formulario">
+          <label>Adiar por</label>
+          <div className="barra-filtros" style={{ marginBottom: 0 }}>
+            {OPCOES_MESES.map((m) => (
+              <button
+                key={m}
+                className={`chip ${meses === m ? "ativo" : ""}`}
+                onClick={() => setMeses(m)}
+                type="button"
+              >
+                {m} {m === 1 ? "mês" : "meses"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="campo-formulario">
+          <label>Motivo (opcional)</label>
+          <textarea
+            rows={3}
+            placeholder="Ex: Cliente confirmou que vai continuar no plano atual, sem interesse em trocar por enquanto."
+            value={motivo}
+            onChange={(e) => setMotivo(e.target.value)}
+          />
+        </div>
+
+        <div className="modal-acoes">
+          <button className="botao botao-secundario" onClick={fecharModal}>
+            Cancelar
+          </button>
+          <button className="botao botao-primario" onClick={confirmarAdiamento} disabled={salvando}>
+            {salvando ? "Salvando..." : "Confirmar"}
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }

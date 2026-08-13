@@ -598,3 +598,109 @@ tbody tr:last-child td {
   padding: 1.1rem 1.25rem;
   margin-bottom: 1rem;
 }
+
+/* ---------- Modal ---------- */
+.modal-fundo {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 42, 67, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.modal-caixa {
+  background: white;
+  border-radius: var(--raio);
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 10px 30px rgba(15, 42, 67, 0.25);
+}
+
+.modal-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.modal-cabecalho strong {
+  font-size: 1rem;
+  color: var(--cor-primaria-escura);
+}
+
+.modal-fechar {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--cor-texto-suave);
+}
+
+.modal-corpo {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.campo-formulario label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--cor-texto-suave);
+  margin-bottom: 0.3rem;
+}
+
+.campo-formulario input,
+.campo-formulario textarea,
+.campo-formulario select {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--raio-pequeno);
+  border: 1px solid var(--cor-borda);
+  font-family: var(--fonte);
+  font-size: 0.9rem;
+}
+
+.campo-formulario input:focus,
+.campo-formulario textarea:focus,
+.campo-formulario select:focus {
+  outline: none;
+  border-color: var(--cor-primaria);
+}
+
+.modal-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.3rem;
+}
+
+.badge-manual {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  color: var(--cor-primaria);
+  font-weight: 600;
+  margin-left: 0.4rem;
+}
+
+.botao-icone {
+  background: none;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  padding: 0.35rem 0.6rem;
+  font-size: 0.78rem;
+  color: var(--cor-texto-suave);
+  font-weight: 600;
+}
+
+.botao-icone:hover {
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria);
+}

@@ -21,4 +21,6 @@ export const api = {
   duplicidades: () => pedir("/api/admin/duplicidades"),
   registrarAtividade: (dados) =>
     pedir("/api/atividades", { method: "POST", body: JSON.stringify(dados) }),
+  agendarLembrete: (dados) =>
+    pedir("/api/lembretes", { method: "POST", body: JSON.stringify(dados) }),
 };

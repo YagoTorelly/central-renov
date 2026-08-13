@@ -30,4 +30,5 @@ if (!FONTES[dataSource]) {
 module.exports = {
   ...FONTES[dataSource](),
   atividadeRepository: require("./atividadeRepository.mock"),
+  lembreteRepository: require("./lembreteRepository.mock"),
 };
