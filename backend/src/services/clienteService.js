@@ -5,6 +5,7 @@ const {
   proprietarioRepository,
 } = require("../data/repositories");
 const { calcularRenovacao } = require("../domain/renovacao");
+const { linkNegocioPipedrive } = require("../utils/pipedriveLink");
 
 const VISUALIZAR_TODOS = "todos";
 
@@ -42,6 +43,9 @@ async function listarMeusClientes(proprietarioId) {
       produto: negocio.produto,
       dataInicio: negocio.dataInicio,
       mesesVigencia: negocio.mesesVigencia,
+      valor: negocio.valor ?? null,
+      moeda: negocio.moeda || "BRL",
+      linkPipedrive: linkNegocioPipedrive(negocio.pipedriveDealId),
       lembreteMotivo: lembrete?.motivo || null,
       proprietarioNome,
       ...renovacao,

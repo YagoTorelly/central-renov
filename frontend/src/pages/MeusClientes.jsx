@@ -4,6 +4,7 @@ import { api } from "../api";
 import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
 import { ROTULO_ALERTA_RENOVACAO } from "../data/rotulos";
 import { formatarDataBR } from "../utils/formatarData";
+import { formatarMoeda } from "../utils/formatarMoeda";
 import Badge from "../components/ui/Badge";
 import Modal from "../components/ui/Modal";
 
@@ -149,6 +150,7 @@ export default function MeusClientes() {
                   {verTodos && <th>Proprietário</th>}
                   <th>Tipo</th>
                   <th>Produto</th>
+                  <th>Valor</th>
                   <th>Início</th>
                   <th>Renovação</th>
                   <th>Alerta</th>
@@ -163,6 +165,7 @@ export default function MeusClientes() {
                     {verTodos && <td>{c.proprietarioNome || "-"}</td>}
                     <td>{c.tipo === "empresa" ? "Empresa" : "Pessoa"}</td>
                     <td>{c.produto}</td>
+                    <td>{formatarMoeda(c.valor, c.moeda)}</td>
                     <td>{formatarDataBR(c.dataInicio)}</td>
                     <td>{formatarDataBR(c.dataRenovacao)}</td>
                     <td>
@@ -179,9 +182,21 @@ export default function MeusClientes() {
                     </td>
                     <td>{c.telefone ? "WhatsApp" : c.email ? "E-mail" : "-"}</td>
                     <td>
-                      <button className="botao-icone" onClick={() => abrirModal(c)}>
-                        Adiar renovação
-                      </button>
+                      <div className="acoes">
+                        <button className="botao-icone" onClick={() => abrirModal(c)}>
+                          Adiar renovação
+                        </button>
+                        {c.linkPipedrive && (
+                          <a
+                            className="botao-icone"
+                            href={c.linkPipedrive}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Ver no Pipedrive
+                          </a>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

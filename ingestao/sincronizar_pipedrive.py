@@ -164,11 +164,14 @@ def mapear_negocio(deal: dict, pessoa_empresa_id: str):
 
     negocio = {
         "id": f"pd_{deal['id']}",
+        "pipedriveDealId": deal["id"],
         "pessoaEmpresaId": pessoa_empresa_id,
         "proprietarioId": str(deal["user_id"]["value"]) if isinstance(deal.get("user_id"), dict) else None,
         "seguradora": deal.get("_seguradora_slug"),
         "produto": deal.get("_produto_label") or "",
         "status": status_app,
+        "valor": deal.get("value") or None,
+        "moeda": deal.get("currency") or "BRL",
     }
 
     if status_app == "ganho":
