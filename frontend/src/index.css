@@ -773,3 +773,13 @@ td .acoes {
   align-items: center;
   gap: 0.35rem;
 }
+
+.botao-whatsapp {
+  border-color: #b7f0d0;
+  color: #128c4a;
+}
+
+.botao-whatsapp:hover {
+  border-color: var(--cor-sucesso);
+  background: #ecfdf5;
+}

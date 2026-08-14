@@ -12,6 +12,7 @@ import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
 import { ROTULO_ALERTA_RENOVACAO } from "../data/rotulos";
 import { formatarDataBR } from "../utils/formatarData";
 import { formatarMoeda } from "../utils/formatarMoeda";
+import { linkWhatsApp } from "../utils/linkContato";
 import Badge from "../components/ui/Badge";
 import Modal from "../components/ui/Modal";
 
@@ -191,13 +192,19 @@ export default function MeusClientes() {
                     </td>
                     <td>
                       {c.telefone ? (
-                        <span className="icone-texto">
-                          <IconBrandWhatsapp size={16} /> WhatsApp
-                        </span>
+                        <a
+                          className="botao-icone botao-whatsapp"
+                          href={linkWhatsApp(c.telefone)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Abrir conversa no WhatsApp"
+                        >
+                          <IconBrandWhatsapp size={16} /> {c.telefone}
+                        </a>
                       ) : c.email ? (
-                        <span className="icone-texto">
-                          <IconMail size={16} /> E-mail
-                        </span>
+                        <a className="botao-icone" href={`mailto:${c.email}`} title="Enviar e-mail">
+                          <IconMail size={16} /> {c.email}
+                        </a>
                       ) : (
                         "-"
                       )}
