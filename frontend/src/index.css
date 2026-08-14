@@ -397,7 +397,7 @@ a.cartao:hover {
 }
 
 table {
-  width: 100%;
+  min-width: 100%;
   border-collapse: collapse;
 }
 
@@ -406,6 +406,9 @@ th, td {
   padding: 0.7rem 1rem;
   border-bottom: 1px solid var(--cor-borda);
   font-size: 0.88rem;
+  /* linhas ficam compactas (1 linha) e a tabela rola de lado em vez de
+     esticar a altura da linha com nome de cliente/empresa grande. */
+  white-space: nowrap;
 }
 
 th {
