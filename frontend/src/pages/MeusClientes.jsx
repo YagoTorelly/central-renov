@@ -12,7 +12,7 @@ import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
 import { ROTULO_ALERTA_RENOVACAO } from "../data/rotulos";
 import { formatarDataBR } from "../utils/formatarData";
 import { formatarMoeda } from "../utils/formatarMoeda";
-import { linkWhatsApp } from "../utils/linkContato";
+import { dividirContatos, linkWhatsApp } from "../utils/linkContato";
 import Badge from "../components/ui/Badge";
 import Modal from "../components/ui/Modal";
 
@@ -28,6 +28,39 @@ const OPCOES_MESES = [1, 2, 3, 6, 12];
 
 function normalizarBusca(texto) {
   return texto.trim().toLowerCase();
+}
+
+// Um cliente pode ter mais de um telefone/e-mail no mesmo campo (ex:
+// "(11) 3062-2768/ (35) 99945-7568") e pode ter telefone E e-mail ao
+// mesmo tempo - mostra um botao por contato, todos juntos, em vez de so
+// o primeiro que existir. Decisao confirmada em 2026-08-14.
+function ContatosCliente({ telefone, email }) {
+  const telefones = dividirContatos(telefone);
+  const emails = dividirContatos(email);
+
+  if (telefones.length === 0 && emails.length === 0) return "-";
+
+  return (
+    <div className="lista-contatos">
+      {telefones.map((tel, indice) => (
+        <a
+          key={`tel-${indice}`}
+          className="botao-icone botao-whatsapp"
+          href={linkWhatsApp(tel)}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Abrir conversa no WhatsApp"
+        >
+          <IconBrandWhatsapp size={16} /> {tel}
+        </a>
+      ))}
+      {emails.map((end, indice) => (
+        <a key={`email-${indice}`} className="botao-icone" href={`mailto:${end}`} title="Enviar e-mail">
+          <IconMail size={16} /> {end}
+        </a>
+      ))}
+    </div>
+  );
 }
 
 export default function MeusClientes() {
@@ -191,23 +224,7 @@ export default function MeusClientes() {
                       )}
                     </td>
                     <td>
-                      {c.telefone ? (
-                        <a
-                          className="botao-icone botao-whatsapp"
-                          href={linkWhatsApp(c.telefone)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title="Abrir conversa no WhatsApp"
-                        >
-                          <IconBrandWhatsapp size={16} /> {c.telefone}
-                        </a>
-                      ) : c.email ? (
-                        <a className="botao-icone" href={`mailto:${c.email}`} title="Enviar e-mail">
-                          <IconMail size={16} /> {c.email}
-                        </a>
-                      ) : (
-                        "-"
-                      )}
+                      <ContatosCliente telefone={c.telefone} email={c.email} />
                     </td>
                     <td>
                       <div className="acoes">

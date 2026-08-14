@@ -783,3 +783,9 @@ td .acoes {
   border-color: var(--cor-sucesso);
   background: #ecfdf5;
 }
+
+.lista-contatos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}

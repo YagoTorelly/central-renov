@@ -11,3 +11,14 @@ export function linkWhatsApp(telefone) {
   const comDDI = digitos.length <= 11 ? `55${digitos}` : digitos;
   return `https://wa.me/${comDDI}`;
 }
+
+// Telefone/e-mail as vezes vem com mais de um valor no mesmo campo, ex:
+// "(11) 3062-2768/ (35) 99945-7568" - separa em varios pra virar um botao
+// por contato, em vez de um link so quebrado.
+export function dividirContatos(valor) {
+  if (!valor) return [];
+  return valor
+    .split(/[/,;]+/)
+    .map((v) => v.trim())
+    .filter(Boolean);
+}
