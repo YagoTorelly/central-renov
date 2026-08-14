@@ -31,3 +31,11 @@ export function linkTelefone(telefone) {
   const comDDI = digitos.length <= 11 ? `55${digitos}` : digitos;
   return `tel:+${comDDI}`;
 }
+
+// Em vez de mailto: (que depende do cliente de e-mail padrao do SO, e
+// costuma abrir o Outlook em vez do webmail da WTG), abre direto a tela de
+// composicao do webmail com o destinatario ja preenchido no "Para".
+export function linkEmailWebmail(email) {
+  if (!email) return null;
+  return `https://webmail.wtgseguros.com.br/?_task=mail&_action=compose&_to=${encodeURIComponent(email)}`;
+}

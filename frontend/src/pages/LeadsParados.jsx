@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { IconBrandWhatsapp, IconBulb, IconMail, IconPhone, IconTargetOff } from "@tabler/icons-react";
 import { api } from "../api";
 import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
-import { dividirContatos, linkTelefone, linkWhatsApp } from "../utils/linkContato";
+import { dividirContatos, linkEmailWebmail, linkTelefone, linkWhatsApp } from "../utils/linkContato";
 import Badge from "../components/ui/Badge";
 
 const POR_PAGINA = 20;
@@ -164,7 +164,7 @@ export default function LeadsParados() {
                   />
                   <BotaoContato
                     className="botao botao-secundario"
-                    href={dividirContatos(lead.email)[0] ? `mailto:${dividirContatos(lead.email)[0]}` : null}
+                    href={linkEmailWebmail(dividirContatos(lead.email)[0])}
                     Icone={IconMail}
                     texto="E-mail"
                     onClick={() => registrar(lead.negocioId, "email")}

@@ -12,7 +12,7 @@ import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
 import { ROTULO_ALERTA_RENOVACAO } from "../data/rotulos";
 import { formatarDataBR } from "../utils/formatarData";
 import { formatarMoeda } from "../utils/formatarMoeda";
-import { dividirContatos, linkWhatsApp } from "../utils/linkContato";
+import { dividirContatos, linkEmailWebmail, linkWhatsApp } from "../utils/linkContato";
 import Badge from "../components/ui/Badge";
 import Modal from "../components/ui/Modal";
 
@@ -55,7 +55,14 @@ function ContatosCliente({ telefone, email }) {
         </a>
       ))}
       {emails.map((end, indice) => (
-        <a key={`email-${indice}`} className="botao-icone" href={`mailto:${end}`} title="Enviar e-mail">
+        <a
+          key={`email-${indice}`}
+          className="botao-icone"
+          href={linkEmailWebmail(end)}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Enviar e-mail pelo webmail"
+        >
           <IconMail size={16} /> {end}
         </a>
       ))}
