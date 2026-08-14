@@ -1,3 +1,5 @@
+import { IconX } from "@tabler/icons-react";
+
 export default function Modal({ titulo, aberto, onFechar, children }) {
   if (!aberto) return null;
   return (
@@ -6,7 +8,7 @@ export default function Modal({ titulo, aberto, onFechar, children }) {
         <div className="modal-cabecalho">
           <strong>{titulo}</strong>
           <button className="modal-fechar" onClick={onFechar} aria-label="Fechar">
-            ×
+            <IconX size={18} />
           </button>
         </div>
         <div className="modal-corpo">{children}</div>

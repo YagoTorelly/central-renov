@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import {
+  IconBell,
+  IconBrandWhatsapp,
+  IconExternalLink,
+  IconFolderOff,
+  IconMail,
+} from "@tabler/icons-react";
 import { api } from "../api";
 import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
 import { ROTULO_ALERTA_RENOVACAO } from "../data/rotulos";
@@ -137,7 +144,7 @@ export default function MeusClientes() {
 
       {filtrados.length === 0 ? (
         <div className="estado-vazio">
-          <span className="icone">🗂️</span>
+          <IconFolderOff className="icone" size={40} stroke={1.5} />
           Nenhum cliente encontrado com esse filtro.
         </div>
       ) : (
@@ -178,15 +185,27 @@ export default function MeusClientes() {
                       )}
                       {c.ajustadaManualmente && (
                         <span className="badge-manual" title={c.lembreteMotivo || "Renovação adiada manualmente"}>
-                          🔔 adiada
+                          <IconBell size={13} /> adiada
                         </span>
                       )}
                     </td>
-                    <td>{c.telefone ? "WhatsApp" : c.email ? "E-mail" : "-"}</td>
+                    <td>
+                      {c.telefone ? (
+                        <span className="icone-texto">
+                          <IconBrandWhatsapp size={16} /> WhatsApp
+                        </span>
+                      ) : c.email ? (
+                        <span className="icone-texto">
+                          <IconMail size={16} /> E-mail
+                        </span>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
                     <td>
                       <div className="acoes">
                         <button className="botao-icone" onClick={() => abrirModal(c)} title="Adiar renovação">
-                          🔔 Adiar
+                          <IconBell size={14} /> Adiar
                         </button>
                         {c.linkPipedrive && (
                           <a
@@ -196,7 +215,7 @@ export default function MeusClientes() {
                             rel="noopener noreferrer"
                             title="Ver no Pipedrive"
                           >
-                            🔗 Pipedrive
+                            <IconExternalLink size={14} /> Pipedrive
                           </a>
                         )}
                       </div>

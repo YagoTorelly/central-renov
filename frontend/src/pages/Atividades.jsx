@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { IconBell, IconBrandWhatsapp, IconMail, IconPhone, IconPhoneOff } from "@tabler/icons-react";
 import { api } from "../api";
 import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
 import { formatarDataBR } from "../utils/formatarData";
@@ -10,6 +11,13 @@ const ROTULO_TIPO = {
   lembrete: "Lembrete adiado",
 };
 
+const ICONE_TIPO = {
+  whatsapp: IconBrandWhatsapp,
+  ligacao: IconPhone,
+  email: IconMail,
+  lembrete: IconBell,
+};
+
 const FILTROS = [
   { chave: "todos", rotulo: "Todos" },
   { chave: "whatsapp", rotulo: "WhatsApp" },
@@ -17,6 +25,16 @@ const FILTROS = [
   { chave: "email", rotulo: "E-mail" },
   { chave: "lembrete", rotulo: "Lembretes" },
 ];
+
+function TipoAtividade({ tipo }) {
+  const Icone = ICONE_TIPO[tipo];
+  return (
+    <span className="icone-texto atividade-tipo">
+      {Icone && <Icone size={16} />}
+      {ROTULO_TIPO[tipo] || tipo}
+    </span>
+  );
+}
 
 export default function Atividades() {
   const [atividades, setAtividades] = useState([]);
@@ -73,7 +91,7 @@ export default function Atividades() {
 
       {filtradas.length === 0 ? (
         <div className="estado-vazio">
-          <span className="icone">📞</span>
+          <IconPhoneOff className="icone" size={40} stroke={1.5} />
           Nenhuma atividade encontrada com esse filtro.
         </div>
       ) : (
@@ -96,7 +114,9 @@ export default function Atividades() {
                   <td>{a.cliente}</td>
                   {verTodos && <td>{a.proprietarioNome || "-"}</td>}
                   <td>{a.produto ? `${a.produto}${a.seguradora ? " · " + a.seguradora : ""}` : "-"}</td>
-                  <td>{ROTULO_TIPO[a.tipo] || a.tipo}</td>
+                  <td>
+                    <TipoAtividade tipo={a.tipo} />
+                  </td>
                   <td>{a.resultado || "-"}</td>
                 </tr>
               ))}

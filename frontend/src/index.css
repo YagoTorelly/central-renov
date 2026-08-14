@@ -131,6 +131,9 @@ button {
   font-size: 0.92rem;
   padding: 0.5rem 0.85rem;
   border-radius: var(--raio-pequeno);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .topo nav a:hover {
@@ -211,7 +214,7 @@ main {
 }
 
 .explicacao-item .icone {
-  font-size: 1.5rem;
+  color: var(--cor-primaria);
 }
 
 .explicacao-item h3 {
@@ -311,6 +314,19 @@ main {
 a.cartao:hover {
   border-color: var(--cor-primaria);
   transform: translateY(-2px);
+}
+
+.cartao-icone {
+  color: var(--cor-primaria);
+  margin-bottom: 0.2rem;
+}
+
+.cartao-atrasada .cartao-icone {
+  color: var(--cor-perigo);
+}
+
+.cartao-destaque .cartao-icone {
+  color: var(--cor-destaque-escura);
 }
 
 .cartao-valor {
@@ -491,9 +507,9 @@ tbody tr:last-child td {
 }
 
 .estado-vazio .icone {
-  font-size: 2.5rem;
   display: block;
-  margin-bottom: 0.5rem;
+  margin: 0 auto 0.5rem;
+  color: var(--cor-texto-suave);
 }
 
 /* ---------- Leads (cartoes) ---------- */
@@ -540,6 +556,9 @@ tbody tr:last-child td {
   font-size: 0.85rem;
   font-weight: 600;
   margin: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .motivos {
@@ -655,9 +674,17 @@ td .acoes {
 .modal-fechar {
   background: none;
   border: none;
-  font-size: 1.4rem;
   line-height: 1;
   color: var(--cor-texto-suave);
+  display: flex;
+  align-items: center;
+  padding: 0.2rem;
+  border-radius: var(--raio-pequeno);
+}
+
+.modal-fechar:hover {
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
 }
 
 .modal-corpo {
@@ -718,6 +745,9 @@ td .acoes {
   font-size: 0.78rem;
   color: var(--cor-texto-suave);
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 .botao-icone:hover {
@@ -734,4 +764,12 @@ td .acoes {
   color: var(--cor-primaria-escura);
   font-weight: 600;
   background: var(--cor-fundo);
+}
+
+/* utilitario pra alinhar icone + texto em linha, fora de botao/badge/nav
+   (que ja tem flex proprio) - usado em celulas de tabela com icone. */
+.icone-texto {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }

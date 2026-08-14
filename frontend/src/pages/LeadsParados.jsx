@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { IconBrandWhatsapp, IconBulb, IconMail, IconPhone, IconTargetOff } from "@tabler/icons-react";
 import { api } from "../api";
 import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
 import Badge from "../components/ui/Badge";
@@ -94,7 +95,7 @@ export default function LeadsParados() {
 
       {filtrados.length === 0 ? (
         <div className="estado-vazio">
-          <span className="icone">🎯</span>
+          <IconTargetOff className="icone" size={40} stroke={1.5} />
           Nenhum lead parado com esse filtro.
         </div>
       ) : (
@@ -112,7 +113,9 @@ export default function LeadsParados() {
                   movimentação
                 </p>
                 {lead.oportunidadeVendaCruzada && (
-                  <p className="venda-cruzada">💡 {lead.oportunidadeVendaCruzada.mensagem}</p>
+                  <p className="venda-cruzada">
+                    <IconBulb size={16} /> {lead.oportunidadeVendaCruzada.mensagem}
+                  </p>
                 )}
                 <p className="motivos">{lead.motivos.join(" · ")}</p>
                 <div className="acoes">
@@ -121,21 +124,21 @@ export default function LeadsParados() {
                     disabled={!lead.telefone}
                     onClick={() => registrar(lead.negocioId, "whatsapp")}
                   >
-                    WhatsApp
+                    <IconBrandWhatsapp size={16} /> WhatsApp
                   </button>
                   <button
                     className="botao botao-secundario"
                     disabled={!lead.telefone}
                     onClick={() => registrar(lead.negocioId, "ligacao")}
                   >
-                    Ligar
+                    <IconPhone size={16} /> Ligar
                   </button>
                   <button
                     className="botao botao-secundario"
                     disabled={!lead.email}
                     onClick={() => registrar(lead.negocioId, "email")}
                   >
-                    E-mail
+                    <IconMail size={16} /> E-mail
                   </button>
                 </div>
               </div>

@@ -1,27 +1,28 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { IconAddressBook, IconBell, IconLink, IconRepeat } from "@tabler/icons-react";
 import { api } from "../api";
 import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
 import { logoWtg } from "../assets/logoWtg";
 
 const PONTOS_EXPLICACAO = [
   {
-    icone: "🔔",
+    Icone: IconBell,
     titulo: "Renovações antecipadas",
     texto: "O sistema avisa 90/60/30 dias antes de cada contrato vencer, pra você nunca perder uma renovação.",
   },
   {
-    icone: "🔁",
+    Icone: IconRepeat,
     titulo: "Leads que ainda podem virar venda",
     texto: "Negócios parados são organizados por chance de conversão, com o motivo explicado.",
   },
   {
-    icone: "🔗",
+    Icone: IconLink,
     titulo: "Venda cruzada",
     texto: "Se um cliente seu já tem outro produto com um colega, o sistema avisa a oportunidade.",
   },
   {
-    icone: "📇",
+    Icone: IconAddressBook,
     titulo: "Uma carteira só, sem duplicidade",
     texto: "Os dados vêm direto do Pipedrive, já organizados e sem contratos duplicados ou cancelados.",
   },
@@ -64,7 +65,7 @@ export default function Login() {
       <div className="explicacao-sistema">
         {PONTOS_EXPLICACAO.map((ponto) => (
           <div className="explicacao-item" key={ponto.titulo}>
-            <span className="icone">{ponto.icone}</span>
+            <ponto.Icone className="icone" size={28} stroke={1.75} />
             <h3>{ponto.titulo}</h3>
             <p>{ponto.texto}</p>
           </div>

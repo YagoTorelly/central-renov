@@ -1,4 +1,16 @@
 import { useEffect, useState } from "react";
+import {
+  IconAlertTriangle,
+  IconCircleCheck,
+  IconClock,
+  IconFlame,
+  IconKey,
+  IconMail,
+  IconPhoneCall,
+  IconTarget,
+  IconUserCog,
+  IconUsers,
+} from "@tabler/icons-react";
 import { api } from "../api";
 import Modal from "../components/ui/Modal";
 
@@ -58,18 +70,24 @@ export default function Admin() {
 function VisaoGeral({ dados }) {
   if (!dados) return <p>Carregando...</p>;
   const cartoes = [
-    { titulo: "Proprietários ativos", valor: dados.totalProprietarios },
-    { titulo: "Clientes ativos (carteira toda)", valor: dados.clientesAtivos },
-    { titulo: "Renovações próximas (90/60/30 dias)", valor: dados.renovacoesProximas },
-    { titulo: "Renovações atrasadas", valor: dados.renovacoesAtrasadas, classe: "cartao-atrasada" },
-    { titulo: "Leads parados", valor: dados.leadsParados },
-    { titulo: "Leads quentes", valor: dados.leadsQuentes, classe: "cartao-atrasada" },
-    { titulo: "Contatos realizados", valor: dados.contatosRealizados },
+    { titulo: "Proprietários ativos", valor: dados.totalProprietarios, Icone: IconUserCog },
+    { titulo: "Clientes ativos (carteira toda)", valor: dados.clientesAtivos, Icone: IconUsers },
+    { titulo: "Renovações próximas (90/60/30 dias)", valor: dados.renovacoesProximas, Icone: IconClock },
+    {
+      titulo: "Renovações atrasadas",
+      valor: dados.renovacoesAtrasadas,
+      classe: "cartao-atrasada",
+      Icone: IconAlertTriangle,
+    },
+    { titulo: "Leads parados", valor: dados.leadsParados, Icone: IconTarget },
+    { titulo: "Leads quentes", valor: dados.leadsQuentes, classe: "cartao-atrasada", Icone: IconFlame },
+    { titulo: "Contatos realizados", valor: dados.contatosRealizados, Icone: IconPhoneCall },
   ];
   return (
     <div className="grade-cartoes">
       {cartoes.map((c) => (
         <div className={`cartao ${c.classe || ""}`} key={c.titulo}>
+          <c.Icone className="cartao-icone" size={22} stroke={1.75} />
           <span className="cartao-valor">{c.valor}</span>
           <span className="cartao-titulo">{c.titulo}</span>
         </div>
@@ -212,10 +230,10 @@ function Usuarios({ usuarios, onAtualizado }) {
                 <td>
                   <div className="acoes">
                     <button className="botao-icone" onClick={() => abrirEdicaoEmail(u)}>
-                      Editar e-mail
+                      <IconMail size={14} /> E-mail
                     </button>
                     <button className="botao-icone" onClick={() => abrirEdicaoSenha(u)}>
-                      Redefinir senha
+                      <IconKey size={14} /> Senha
                     </button>
                   </div>
                 </td>
@@ -271,7 +289,7 @@ function Duplicidades({ duplicidades }) {
       </p>
       {duplicidades.length === 0 ? (
         <div className="estado-vazio">
-          <span className="icone">✅</span>
+          <IconCircleCheck className="icone" size={40} stroke={1.5} />
           Nenhuma duplicidade encontrada nos dados atuais.
         </div>
       ) : (

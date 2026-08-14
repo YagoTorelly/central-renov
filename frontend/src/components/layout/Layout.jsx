@@ -1,8 +1,18 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import {
+  IconActivity,
+  IconLayoutDashboard,
+  IconLogout,
+  IconSettings,
+  IconTarget,
+  IconUsers,
+} from "@tabler/icons-react";
 import { useProprietarioAtual } from "../../hooks/useProprietarioAtual";
 import { logoWtg } from "../../assets/logoWtg";
 import { api } from "../../api";
+
+const ICONE_TAMANHO = 18;
 
 export default function Layout() {
   const { proprietarioNome, proprietarioPapel, visualizandoComoId, definirVisualizandoComo, sair } =
@@ -27,11 +37,23 @@ export default function Layout() {
       <header className="topo">
         <img className="topo-logo" src={logoWtg} alt="WTG Corretora" />
         <nav>
-          <NavLink to="/dashboard">Dashboard</NavLink>
-          <NavLink to="/clientes">Meus Clientes</NavLink>
-          <NavLink to="/leads">Leads Parados</NavLink>
-          <NavLink to="/atividades">Atividades</NavLink>
-          {ehAdmin && <NavLink to="/admin">Administração</NavLink>}
+          <NavLink to="/dashboard">
+            <IconLayoutDashboard size={ICONE_TAMANHO} /> Dashboard
+          </NavLink>
+          <NavLink to="/clientes">
+            <IconUsers size={ICONE_TAMANHO} /> Meus Clientes
+          </NavLink>
+          <NavLink to="/leads">
+            <IconTarget size={ICONE_TAMANHO} /> Leads Parados
+          </NavLink>
+          <NavLink to="/atividades">
+            <IconActivity size={ICONE_TAMANHO} /> Atividades
+          </NavLink>
+          {ehAdmin && (
+            <NavLink to="/admin">
+              <IconSettings size={ICONE_TAMANHO} /> Administração
+            </NavLink>
+          )}
         </nav>
         {ehAdmin && (
           <select
@@ -51,7 +73,7 @@ export default function Layout() {
         <span className="usuario-atual">
           {proprietarioNome}
           <button className="botao botao-secundario" onClick={trocarUsuario}>
-            Trocar usuário
+            <IconLogout size={16} /> Trocar usuário
           </button>
         </span>
       </header>
