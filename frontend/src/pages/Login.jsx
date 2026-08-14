@@ -31,7 +31,7 @@ export default function Login() {
     <div className="tela-login">
       <div className="login-marca">
         <div className="login-marca-conteudo">
-          <img src={logoWtg} alt="WTG Corretora" className="login-marca-logo" width="120" height="34" />
+          <img src={logoWtg} alt="WTG Corretora" className="login-marca-logo" width="44" height="34" />
           <span className="login-marca-linha" aria-hidden="true" />
           <span className="login-marca-eyebrow">Comercial · Renovação e Reativação</span>
           <h1>Sua carteira inteira, num só lugar.</h1>
