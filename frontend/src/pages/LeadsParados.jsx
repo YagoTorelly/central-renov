@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { IconBrandWhatsapp, IconBulb, IconMail, IconPhone, IconTargetOff } from "@tabler/icons-react";
 import { api } from "../api";
 import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
+import { dividirContatos, linkTelefone, linkWhatsApp } from "../utils/linkContato";
 import Badge from "../components/ui/Badge";
 
 const POR_PAGINA = 20;
@@ -13,6 +14,34 @@ const FILTROS = [
   { chave: "morno", rotulo: "Morno" },
   { chave: "frio", rotulo: "Frio" },
 ];
+
+// Se tiver telefone/e-mail, vira link de verdade (abre WhatsApp/discador/
+// e-mail) alem de registrar a atividade; sem contato, fica desabilitado.
+function BotaoContato({ className, href, Icone, texto, onClick }) {
+  if (!href) {
+    return (
+      <button className={className} disabled>
+        <Icone size={16} /> {texto}
+      </button>
+    );
+  }
+  // so wa.me e uma pagina web de verdade - abre em nova aba pra nao
+  // navegar pra fora do sistema. tel:/mailto: sao protocolo (abre o
+  // discador/cliente de e-mail padrao), nao precisa e pode sobrar aba
+  // em branco em alguns navegadores.
+  const abreNovaAba = href.startsWith("http");
+  return (
+    <a
+      className={className}
+      href={href}
+      target={abreNovaAba ? "_blank" : undefined}
+      rel={abreNovaAba ? "noopener noreferrer" : undefined}
+      onClick={onClick}
+    >
+      <Icone size={16} /> {texto}
+    </a>
+  );
+}
 
 export default function LeadsParados() {
   const [leads, setLeads] = useState([]);
@@ -119,27 +148,27 @@ export default function LeadsParados() {
                 )}
                 <p className="motivos">{lead.motivos.join(" · ")}</p>
                 <div className="acoes">
-                  <button
+                  <BotaoContato
                     className="botao botao-primario"
-                    disabled={!lead.telefone}
+                    href={linkWhatsApp(dividirContatos(lead.telefone)[0])}
+                    Icone={IconBrandWhatsapp}
+                    texto="WhatsApp"
                     onClick={() => registrar(lead.negocioId, "whatsapp")}
-                  >
-                    <IconBrandWhatsapp size={16} /> WhatsApp
-                  </button>
-                  <button
+                  />
+                  <BotaoContato
                     className="botao botao-secundario"
-                    disabled={!lead.telefone}
+                    href={linkTelefone(dividirContatos(lead.telefone)[0])}
+                    Icone={IconPhone}
+                    texto="Ligar"
                     onClick={() => registrar(lead.negocioId, "ligacao")}
-                  >
-                    <IconPhone size={16} /> Ligar
-                  </button>
-                  <button
+                  />
+                  <BotaoContato
                     className="botao botao-secundario"
-                    disabled={!lead.email}
+                    href={dividirContatos(lead.email)[0] ? `mailto:${dividirContatos(lead.email)[0]}` : null}
+                    Icone={IconMail}
+                    texto="E-mail"
                     onClick={() => registrar(lead.negocioId, "email")}
-                  >
-                    <IconMail size={16} /> E-mail
-                  </button>
+                  />
                 </div>
               </div>
             ))}

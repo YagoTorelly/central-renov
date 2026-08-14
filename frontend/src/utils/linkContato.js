@@ -22,3 +22,12 @@ export function dividirContatos(valor) {
     .map((v) => v.trim())
     .filter(Boolean);
 }
+
+// Mesma normalizacao do WhatsApp, mas pro protocolo tel: (botao "Ligar").
+export function linkTelefone(telefone) {
+  if (!telefone) return null;
+  const digitos = telefone.replace(/\D/g, "");
+  if (!digitos) return null;
+  const comDDI = digitos.length <= 11 ? `55${digitos}` : digitos;
+  return `tel:+${comDDI}`;
+}
