@@ -160,87 +160,115 @@ main {
   margin: 0 auto;
 }
 
-/* ---------- Login / apresentacao ---------- */
+/* ---------- Login ---------- */
+/* Duas colunas assimetricas: marca solida (sem gradiente) de um lado, o
+   formulario do outro - o formulario e o motivo da tela existir, entao ele
+   fica no primeiro plano, nao empurrado pra baixo de um "hero" com cards. */
 .tela-login {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.login-topo {
-  width: 100%;
-  background: linear-gradient(135deg, var(--cor-primaria-escura), var(--cor-primaria));
-  padding: 3rem 1.5rem 2.5rem;
-  text-align: center;
-  color: white;
-}
-
-.login-topo img {
-  height: 56px;
-  background: white;
-  padding: 0.5rem 0.9rem;
-  border-radius: var(--raio-pequeno);
-}
-
-.login-topo h1 {
-  color: white;
-  font-size: 1.6rem;
-  margin-top: 1.25rem;
-}
-
-.login-topo p {
-  max-width: 560px;
-  margin: 0.5rem auto 0;
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1.5;
-}
-
-.explicacao-sistema {
-  width: 100%;
-  max-width: 900px;
-  margin: -1.5rem auto 0;
-  padding: 0 1.5rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
+  grid-template-columns: minmax(320px, 38%) 1fr;
 }
 
-.explicacao-item {
+.login-marca {
+  background: var(--cor-primaria-escura);
+  display: flex;
+  align-items: center;
+  padding: clamp(2rem, 6vw, 4.5rem);
+}
+
+.login-marca-conteudo {
+  max-width: 34ch;
+}
+
+.login-marca-logo {
+  height: 34px;
+  /* o svg da logo ja vem colorido pra fundo claro - em cima do azul escuro
+     precisa de uma base clara por baixo, sem virar mais um cartao branco
+     generico (raio pequeno, so o necessario pra respirar). */
   background: white;
-  border-radius: var(--raio);
-  box-shadow: var(--sombra);
-  padding: 1.25rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--raio-pequeno);
+  display: block;
 }
 
-.explicacao-item .icone {
-  color: var(--cor-primaria);
+.login-marca-linha {
+  display: block;
+  width: 2.5rem;
+  height: 3px;
+  background: var(--cor-destaque);
+  margin: 1.75rem 0 1rem;
 }
 
-.explicacao-item h3 {
-  font-size: 0.95rem;
-  margin: 0.5rem 0 0.25rem;
-  color: var(--cor-primaria-escura);
+.login-marca-eyebrow {
+  display: block;
+  color: var(--cor-primaria-clara);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.explicacao-item p {
-  font-size: 0.85rem;
-  color: var(--cor-texto-suave);
+.login-marca h1 {
+  color: white;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0.6rem 0 0.9rem;
+}
+
+.login-marca p {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 1rem;
+  line-height: 1.55;
   margin: 0;
-  line-height: 1.4;
 }
 
-.login-selecao {
+.login-formulario {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+}
+
+.login-formulario-conteudo {
   width: 100%;
-  max-width: 480px;
-  margin: 2.5rem auto;
-  padding: 0 1.5rem;
-  text-align: center;
+  max-width: 340px;
 }
 
-.login-selecao p {
+.login-formulario h2 {
+  font-size: 1.4rem;
+}
+
+.login-formulario > .login-formulario-conteudo > p {
   color: var(--cor-texto-suave);
   font-size: 0.9rem;
+  margin-top: 0;
+}
+
+.login-formulario form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.login-formulario .botao-primario {
+  justify-content: center;
+  padding: 0.75rem 1.1rem;
+}
+
+@media (max-width: 860px) {
+  .tela-login {
+    grid-template-columns: 1fr;
+  }
+
+  .login-marca {
+    padding: 2.25rem 1.5rem;
+  }
+
+  .login-marca-conteudo {
+    max-width: none;
+  }
 }
 
 .lista-proprietarios {
@@ -713,11 +741,12 @@ td .acoes {
   font-size: 0.9rem;
 }
 
-.campo-formulario input:focus,
-.campo-formulario textarea:focus,
-.campo-formulario select:focus {
+.campo-formulario input:focus-visible,
+.campo-formulario textarea:focus-visible,
+.campo-formulario select:focus-visible {
   outline: none;
   border-color: var(--cor-primaria);
+  box-shadow: 0 0 0 3px rgba(0, 120, 185, 0.25);
 }
 
 .modal-acoes {
