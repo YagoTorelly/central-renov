@@ -6,3 +6,9 @@ output/
 backend/src/data/cache/
 backend/src/data/credenciais/
 *.log
+
+# skills instaladas localmente (agent-skills) - config de ferramenta, nao do projeto
+.agents/
+.claude/
+.cursor/
+.windsurf/

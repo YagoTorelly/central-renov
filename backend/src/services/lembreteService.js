@@ -11,6 +11,13 @@ async function agendarLembrete({ negocioId, proprietarioId, meses, motivo }) {
   if (!negocioId || !proprietarioId || !mesesNumero || mesesNumero <= 0) {
     throw new Error("negocioId, proprietarioId e meses (maior que zero) sao obrigatorios");
   }
+  // negocioId/proprietarioId viram filtro de query no Mongo (ver
+  // lembreteRepository.mongo.js) - se um objeto passar aqui (em vez de
+  // string), vira operador Mongo (ex: {"$ne": null}) e casa com qualquer
+  // documento. So um "truthy" nao basta, tem que travar o tipo.
+  if (typeof negocioId !== "string" || typeof proprietarioId !== "string") {
+    throw new Error("negocioId e proprietarioId precisam ser texto");
+  }
 
   const hoje = new Date().toISOString().slice(0, 10);
   const novaDataRenovacao = calcularDataRenovacao(hoje, mesesNumero);

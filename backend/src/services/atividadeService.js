@@ -11,6 +11,9 @@ async function registrarAtividade({ negocioId, proprietarioId, tipo, resultado }
   if (!negocioId || !proprietarioId || !tipo) {
     throw new Error("negocioId, proprietarioId e tipo sao obrigatorios");
   }
+  if (typeof negocioId !== "string" || typeof proprietarioId !== "string") {
+    throw new Error("negocioId e proprietarioId precisam ser texto");
+  }
   return atividadeRepository.criar({ negocioId, proprietarioId, tipo, resultado });
 }
 

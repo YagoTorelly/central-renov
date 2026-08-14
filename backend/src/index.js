@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
-const { port, dataSource } = require("./config/env");
+const helmet = require("helmet");
+const { port, dataSource, jwtSecret, corsOrigins } = require("./config/env");
+const { conectarMongo } = require("./config/mongo");
 const { errorHandler } = require("./middlewares/errorHandler");
 const { exigirLogin } = require("./middlewares/autenticacao");
 
@@ -14,7 +16,11 @@ const syncRoutes = require("./routes/sync");
 const lembretesRoutes = require("./routes/lembretes");
 
 const app = express();
-app.use(cors());
+// vai atras de um proxy (Heroku) - confia em 1 hop pra req.ip/protocol
+// virem certos, sem confiar cegamente em qualquer X-Forwarded-* espalhado.
+app.set("trust proxy", 1);
+app.use(helmet());
+app.use(cors({ origin: corsOrigins }));
 // limite maior que o padrao (100kb) - a sincronizacao do Pipedrive manda
 // milhares de negocios de uma vez so.
 app.use(express.json({ limit: "20mb" }));
@@ -36,6 +42,19 @@ app.use("/api/lembretes", lembretesRoutes);
 
 app.use(errorHandler);
 
-app.listen(port, () => {
-  console.log(`Central Renov backend rodando em http://localhost:${port} (DATA_SOURCE=${dataSource})`);
-});
+async function iniciar() {
+  // sem isso, jwt.sign/verify caem pra secret "" (string vazia) e qualquer
+  // um forja um token valido assinando com "" tambem - falhar aqui e melhor
+  // que subir "funcionando" com autenticacao quebrada.
+  if (!jwtSecret) {
+    throw new Error("JWT_SECRET nao configurado - defina no .env antes de subir o servidor");
+  }
+  if (dataSource === "mongo") {
+    await conectarMongo();
+  }
+  app.listen(port, () => {
+    console.log(`Central Renov backend rodando em http://localhost:${port} (DATA_SOURCE=${dataSource})`);
+  });
+}
+
+iniciar();
