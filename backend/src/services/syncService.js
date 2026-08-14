@@ -4,6 +4,7 @@ const { dataSource } = require("../config/env");
 const Proprietario = require("../data/models/Proprietario");
 const PessoaEmpresa = require("../data/models/PessoaEmpresa");
 const Negocio = require("../data/models/Negocio");
+const repositories = require("../data/repositories");
 
 const CACHE_DIR = path.join(__dirname, "..", "data", "cache");
 
@@ -47,6 +48,11 @@ async function salvarCacheNoMongo(payload) {
   await upsertColecao(Proprietario, payload.proprietarios);
   await upsertColecao(PessoaEmpresa, payload.pessoasEmpresas);
   await upsertColecao(Negocio, payload.negocios);
+  // sem isso, os repositorios continuam servindo os dados antigos (em
+  // cache em memoria) por ate 5 minutos depois da sincronizacao.
+  repositories.proprietarioRepository.invalidarCache?.();
+  repositories.pessoaEmpresaRepository.invalidarCache?.();
+  repositories.negocioRepository.invalidarCache?.();
 }
 
 async function salvarCache(payload) {
