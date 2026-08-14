@@ -161,7 +161,9 @@ export default function MeusClientes() {
               <tbody>
                 {visiveis.map((c) => (
                   <tr key={c.negocioId}>
-                    <td>{c.nome}</td>
+                    <td className="celula-truncada" title={c.nome}>
+                      {c.nome}
+                    </td>
                     {verTodos && <td>{c.proprietarioNome || "-"}</td>}
                     <td>{c.tipo === "empresa" ? "Empresa" : "Pessoa"}</td>
                     <td>{c.produto}</td>
@@ -183,8 +185,8 @@ export default function MeusClientes() {
                     <td>{c.telefone ? "WhatsApp" : c.email ? "E-mail" : "-"}</td>
                     <td>
                       <div className="acoes">
-                        <button className="botao-icone" onClick={() => abrirModal(c)}>
-                          Adiar renovação
+                        <button className="botao-icone" onClick={() => abrirModal(c)} title="Adiar renovação">
+                          🔔 Adiar
                         </button>
                         {c.linkPipedrive && (
                           <a
@@ -192,8 +194,9 @@ export default function MeusClientes() {
                             href={c.linkPipedrive}
                             target="_blank"
                             rel="noopener noreferrer"
+                            title="Ver no Pipedrive"
                           >
-                            Ver no Pipedrive
+                            🔗 Pipedrive
                           </a>
                         )}
                       </div>

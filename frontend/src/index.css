@@ -153,7 +153,7 @@ button {
 
 main {
   padding: 1.75rem;
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -403,12 +403,21 @@ table {
 
 th, td {
   text-align: left;
-  padding: 0.7rem 1rem;
+  padding: 0.5rem 0.7rem;
   border-bottom: 1px solid var(--cor-borda);
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   /* linhas ficam compactas (1 linha) e a tabela rola de lado em vez de
      esticar a altura da linha com nome de cliente/empresa grande. */
   white-space: nowrap;
+}
+
+/* nome/cliente pode ser bem comprido (razao social grande) - trunca com
+   "..." em vez de forcar a tabela inteira a ficar mais larga por causa de
+   uma unica celula. Passa o mouse ou olha o title pra ver o nome inteiro. */
+.celula-truncada {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 th {
