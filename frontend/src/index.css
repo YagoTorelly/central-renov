@@ -391,7 +391,9 @@ a.cartao:hover {
   background: white;
   border-radius: var(--raio);
   box-shadow: var(--sombra);
-  overflow: hidden;
+  /* tabelas com muitas colunas (ex: Meus Clientes com "todos" + acoes)
+     ficam mais largas que a tela - rola em vez de cortar o conteudo. */
+  overflow-x: auto;
 }
 
 table {
@@ -538,6 +540,12 @@ tbody tr:last-child td {
   display: flex;
   gap: 0.5rem;
   margin-top: 0.6rem;
+  white-space: nowrap;
+}
+
+/* dentro de tabela nao precisa do respiro de cima que o cartao de lead usa */
+td .acoes {
+  margin-top: 0;
 }
 
 /* ---------- Atividades ---------- */
