@@ -818,3 +818,42 @@ td .acoes {
   flex-wrap: wrap;
   gap: 0.35rem;
 }
+
+/* dropdown do botao "Ligar" quando o cliente tem mais de um telefone
+   cadastrado - ancorado no proprio botao, nao precisa de modal. */
+.seletor-telefone {
+  position: relative;
+}
+
+.seletor-telefone-lista {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  z-index: 20;
+  min-width: 170px;
+  background: white;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  box-shadow: 0 10px 24px rgba(15, 42, 67, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.seletor-telefone-lista a {
+  padding: 0.6rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.seletor-telefone-lista a:hover {
+  background: var(--cor-fundo);
+  color: var(--cor-primaria);
+}
+
+.seletor-telefone-lista a + a {
+  border-top: 1px solid var(--cor-borda);
+}

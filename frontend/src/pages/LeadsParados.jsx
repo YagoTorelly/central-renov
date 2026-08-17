@@ -1,10 +1,70 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { IconBrandWhatsapp, IconBulb, IconMail, IconPhone, IconTargetOff } from "@tabler/icons-react";
 import { api } from "../api";
 import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
 import { dividirContatos, linkEmailWebmail, linkTelefone, linkWhatsApp } from "../utils/linkContato";
 import Badge from "../components/ui/Badge";
+
+// Se o cliente tem mais de um telefone cadastrado, "Ligar" nao pode
+// simplesmente ligar pro primeiro - abre um seletor com todos, senao os
+// outros numeros ficam inalcancaveis pela tela.
+function BotaoLigar({ telefone, onLigar }) {
+  const numeros = dividirContatos(telefone);
+  const [aberto, setAberto] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!aberto) return;
+    function aoClicarFora(evento) {
+      if (containerRef.current && !containerRef.current.contains(evento.target)) {
+        setAberto(false);
+      }
+    }
+    document.addEventListener("mousedown", aoClicarFora);
+    return () => document.removeEventListener("mousedown", aoClicarFora);
+  }, [aberto]);
+
+  if (numeros.length === 0) {
+    return (
+      <button className="botao botao-secundario" disabled>
+        <IconPhone size={16} /> Ligar
+      </button>
+    );
+  }
+
+  if (numeros.length === 1) {
+    return (
+      <a className="botao botao-secundario" href={linkTelefone(numeros[0])} onClick={onLigar}>
+        <IconPhone size={16} /> Ligar
+      </a>
+    );
+  }
+
+  return (
+    <div className="seletor-telefone" ref={containerRef}>
+      <button type="button" className="botao botao-secundario" onClick={() => setAberto((v) => !v)}>
+        <IconPhone size={16} /> Ligar
+      </button>
+      {aberto && (
+        <div className="seletor-telefone-lista">
+          {numeros.map((numero, indice) => (
+            <a
+              key={`${numero}-${indice}`}
+              href={linkTelefone(numero)}
+              onClick={() => {
+                setAberto(false);
+                onLigar();
+              }}
+            >
+              {numero}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const POR_PAGINA = 20;
 
@@ -157,13 +217,7 @@ export default function LeadsParados() {
                     texto="WhatsApp"
                     onClick={() => registrar(lead.negocioId, "whatsapp")}
                   />
-                  <BotaoContato
-                    className="botao botao-secundario"
-                    href={linkTelefone(dividirContatos(lead.telefone)[0])}
-                    Icone={IconPhone}
-                    texto="Ligar"
-                    onClick={() => registrar(lead.negocioId, "ligacao")}
-                  />
+                  <BotaoLigar telefone={lead.telefone} onLigar={() => registrar(lead.negocioId, "ligacao")} />
                   <BotaoContato
                     className="botao botao-secundario"
                     href={linkEmailWebmail(dividirContatos(lead.email)[0])}
