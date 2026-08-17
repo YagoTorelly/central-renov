@@ -12,13 +12,16 @@ export function linkWhatsApp(telefone) {
   return `https://wa.me/${comDDI}`;
 }
 
-// Telefone/e-mail as vezes vem com mais de um valor no mesmo campo, ex:
-// "(11) 3062-2768/ (35) 99945-7568" - separa em varios pra virar um botao
-// por contato, em vez de um link so quebrado.
+// Telefone/e-mail as vezes vem com mais de um valor no mesmo campo. Alem de
+// "/", "," e ";", o Pipedrive tambem separa numeros so com espaco duplo, ex:
+// "(11) 992586371  11 3672-4062" (confirmado nos dados reais) - sem separar
+// por isso tambem, os dois numeros ficam grudados e viram um digito so
+// (invalido) na hora de ligar. Um espaco simples continua junto (faz parte
+// de um numero so, tipo "11 97679-1515").
 export function dividirContatos(valor) {
   if (!valor) return [];
   return valor
-    .split(/[/,;]+/)
+    .split(/[/,;]+|\s{2,}/)
     .map((v) => v.trim())
     .filter(Boolean);
 }
