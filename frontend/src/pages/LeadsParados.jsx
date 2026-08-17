@@ -44,7 +44,7 @@ function BotaoContato({ className, href, Icone, texto, onClick }) {
 }
 
 export default function LeadsParados() {
-  const [leads, setLeads] = useState([]);
+  const [leads, setLeads] = useState(null);
   const [erro, setErro] = useState(null);
   const [mensagem, setMensagem] = useState(null);
   const [busca, setBusca] = useState("");
@@ -56,6 +56,7 @@ export default function LeadsParados() {
   const filtro = searchParams.get("filtro") || "todos";
 
   useEffect(() => {
+    setLeads(null);
     carregar();
   }, [visualizandoComoId]);
 
@@ -76,7 +77,7 @@ export default function LeadsParados() {
   }
 
   const filtrados = useMemo(() => {
-    let lista = leads;
+    let lista = leads || [];
     if (filtro !== "todos") lista = lista.filter((l) => l.classificacao === filtro);
     const termo = busca.trim().toLowerCase();
     if (termo) lista = lista.filter((l) => l.nome.toLowerCase().includes(termo));
@@ -88,6 +89,7 @@ export default function LeadsParados() {
   const visiveis = filtrados.slice((pagina_ - 1) * POR_PAGINA, pagina_ * POR_PAGINA);
 
   if (erro) return <p className="erro">{erro}</p>;
+  if (leads === null) return <p>Carregando leads…</p>;
 
   return (
     <div>

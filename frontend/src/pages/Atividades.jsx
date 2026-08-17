@@ -37,7 +37,7 @@ function TipoAtividade({ tipo }) {
 }
 
 export default function Atividades() {
-  const [atividades, setAtividades] = useState([]);
+  const [atividades, setAtividades] = useState(null);
   const [erro, setErro] = useState(null);
   const [filtro, setFiltro] = useState("todos");
   const [busca, setBusca] = useState("");
@@ -45,11 +45,12 @@ export default function Atividades() {
   const verTodos = visualizandoComoId === "todos";
 
   useEffect(() => {
+    setAtividades(null);
     api.atividades(visualizandoComoId).then(setAtividades).catch((e) => setErro(e.message));
   }, [visualizandoComoId]);
 
   const filtradas = useMemo(() => {
-    let lista = atividades;
+    let lista = atividades || [];
     if (filtro !== "todos") lista = lista.filter((a) => a.tipo === filtro);
     const termo = busca.trim().toLowerCase();
     if (termo) lista = lista.filter((a) => a.cliente.toLowerCase().includes(termo));
@@ -57,6 +58,7 @@ export default function Atividades() {
   }, [atividades, filtro, busca]);
 
   if (erro) return <p className="erro">{erro}</p>;
+  if (atividades === null) return <p>Carregando atividades…</p>;
 
   return (
     <div>

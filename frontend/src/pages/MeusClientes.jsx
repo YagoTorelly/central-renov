@@ -71,7 +71,7 @@ function ContatosCliente({ telefone, email }) {
 }
 
 export default function MeusClientes() {
-  const [clientes, setClientes] = useState([]);
+  const [clientes, setClientes] = useState(null);
   const [erro, setErro] = useState(null);
   const [busca, setBusca] = useState("");
   const [pagina, setPagina] = useState(1);
@@ -88,6 +88,10 @@ export default function MeusClientes() {
   const filtro = searchParams.get("filtro") || "todos";
 
   useEffect(() => {
+    // reseta pra null (nao []) ao trocar de proprietario - senao a lista
+    // antiga (de outra pessoa) fica visivel por um instante junto com o
+    // "0 encontrados", em vez de mostrar que esta carregando de novo.
+    setClientes(null);
     carregar();
   }, [visualizandoComoId]);
 
@@ -131,7 +135,7 @@ export default function MeusClientes() {
   }
 
   const filtrados = useMemo(() => {
-    let lista = clientes;
+    let lista = clientes || [];
     if (filtro === "proximas") lista = lista.filter((c) => c.alerta && c.alerta !== "atrasada");
     if (filtro === "atrasadas") lista = lista.filter((c) => c.alerta === "atrasada");
 
@@ -149,6 +153,7 @@ export default function MeusClientes() {
   const visiveis = filtrados.slice((pagina_ - 1) * POR_PAGINA, pagina_ * POR_PAGINA);
 
   if (erro) return <p className="erro">{erro}</p>;
+  if (clientes === null) return <p>Carregando clientes…</p>;
 
   return (
     <div>

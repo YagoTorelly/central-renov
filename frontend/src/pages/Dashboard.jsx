@@ -14,7 +14,7 @@ export default function Dashboard() {
   }, [visualizandoComoId]);
 
   if (erro) return <p className="erro">{erro}</p>;
-  if (!dados) return <p>Carregando...</p>;
+  if (!dados) return <p>Carregando…</p>;
 
   // Cada card leva pra tela e filtro correspondente - clicar mostra
   // exatamente os clientes/leads daquele numero, em vez de so informar.

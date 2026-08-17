@@ -24,9 +24,9 @@ const ABAS = [
 export default function Admin() {
   const [aba, setAba] = useState("geral");
   const [visaoGeral, setVisaoGeral] = useState(null);
-  const [resumoProprietarios, setResumoProprietarios] = useState([]);
-  const [usuarios, setUsuarios] = useState([]);
-  const [duplicidades, setDuplicidades] = useState([]);
+  const [resumoProprietarios, setResumoProprietarios] = useState(null);
+  const [usuarios, setUsuarios] = useState(null);
+  const [duplicidades, setDuplicidades] = useState(null);
   const [erro, setErro] = useState(null);
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export default function Admin() {
 }
 
 function VisaoGeral({ dados }) {
-  if (!dados) return <p>Carregando...</p>;
+  if (!dados) return <p>Carregando…</p>;
   const cartoes = [
     { titulo: "Proprietários ativos", valor: dados.totalProprietarios, Icone: IconUserCog },
     { titulo: "Clientes ativos (carteira toda)", valor: dados.clientesAtivos, Icone: IconUsers },
@@ -97,7 +97,7 @@ function VisaoGeral({ dados }) {
 }
 
 function PorProprietario({ resumo }) {
-  if (resumo.length === 0) return <p>Carregando...</p>;
+  if (resumo === null) return <p>Carregando…</p>;
   return (
     <div className="tabela-container">
       <table>
@@ -199,7 +199,7 @@ function Usuarios({ usuarios, onAtualizado }) {
     }
   }
 
-  if (usuarios.length === 0) return <p>Carregando...</p>;
+  if (usuarios === null) return <p>Carregando…</p>;
 
   return (
     <div>
@@ -282,6 +282,7 @@ function Usuarios({ usuarios, onAtualizado }) {
 }
 
 function Duplicidades({ duplicidades }) {
+  if (duplicidades === null) return <p>Carregando…</p>;
   return (
     <div>
       <p style={{ color: "var(--cor-texto-suave)", fontSize: "0.88rem", marginTop: 0 }}>
