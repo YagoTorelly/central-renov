@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { usuarioRepository } = require("../data/repositories");
-const { buscarProprietarioPorEmailLogin } = require("./usuarioService");
+const { buscarProprietarioPorEmailLogin, obterPapelEfetivo } = require("./usuarioService");
 const { jwtSecret } = require("../config/env");
 
 const VALIDADE_TOKEN = "30d";
@@ -25,15 +25,20 @@ async function login({ email, senha }) {
     throw new Error("E-mail ou senha invalidos");
   }
 
-  const token = jwt.sign(
-    { proprietarioId: proprietario.id, papel: proprietario.papel },
-    jwtSecret,
-    { expiresIn: VALIDADE_TOKEN }
-  );
+  // papel EFETIVO (considera override do admin), nao o bruto do Pipedrive -
+  // senao alguem que foi rebaixado continua logando como admin ate o token
+  // expirar (30 dias), so pela UI achar que ainda e admin com base nisso
+  // aqui (o backend ja revalida o papel a cada request, mas a UI usa o que
+  // veio do login pra decidir o que mostrar).
+  const papel = await obterPapelEfetivo(proprietario.id);
+
+  const token = jwt.sign({ proprietarioId: proprietario.id, papel }, jwtSecret, {
+    expiresIn: VALIDADE_TOKEN,
+  });
 
   return {
     token,
-    proprietario: { id: proprietario.id, nome: proprietario.nome, papel: proprietario.papel },
+    proprietario: { id: proprietario.id, nome: proprietario.nome, papel },
   };
 }
 
