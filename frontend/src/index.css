@@ -840,20 +840,25 @@ td .acoes {
   overflow: hidden;
 }
 
-.seletor-telefone-lista a {
+.seletor-telefone-lista button {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
   padding: 0.6rem 0.85rem;
+  font-family: var(--fonte);
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--cor-texto);
-  text-decoration: none;
+  cursor: pointer;
   font-variant-numeric: tabular-nums;
 }
 
-.seletor-telefone-lista a:hover {
+.seletor-telefone-lista button:hover {
   background: var(--cor-fundo);
   color: var(--cor-primaria);
 }
 
-.seletor-telefone-lista a + a {
+.seletor-telefone-lista button + button {
   border-top: 1px solid var(--cor-borda);
 }

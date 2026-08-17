@@ -3,12 +3,12 @@ import { useSearchParams } from "react-router-dom";
 import { IconBrandWhatsapp, IconBulb, IconMail, IconPhone, IconTargetOff } from "@tabler/icons-react";
 import { api } from "../api";
 import { useProprietarioAtual } from "../hooks/useProprietarioAtual";
-import { dividirContatos, linkEmailWebmail, linkTelefone, linkWhatsApp } from "../utils/linkContato";
+import { dividirContatos, linkEmailWebmail, linkWhatsApp } from "../utils/linkContato";
 import Badge from "../components/ui/Badge";
 
-// Se o cliente tem mais de um telefone cadastrado, "Ligar" nao pode
-// simplesmente ligar pro primeiro - abre um seletor com todos, senao os
-// outros numeros ficam inalcancaveis pela tela.
+// "Ligar" nao tenta discar pelo navegador (o vendedor liga pelo proprio
+// telefone) - so mostra o(s) numero(s) cadastrado(s) no Pipedrive, pra nao
+// precisar abrir o Pipedrive so pra ver o numero.
 function BotaoLigar({ telefone, onLigar }) {
   const numeros = dividirContatos(telefone);
   const [aberto, setAberto] = useState(false);
@@ -33,14 +33,6 @@ function BotaoLigar({ telefone, onLigar }) {
     );
   }
 
-  if (numeros.length === 1) {
-    return (
-      <a className="botao botao-secundario" href={linkTelefone(numeros[0])} onClick={onLigar}>
-        <IconPhone size={16} /> Ligar
-      </a>
-    );
-  }
-
   return (
     <div className="seletor-telefone" ref={containerRef}>
       <button type="button" className="botao botao-secundario" onClick={() => setAberto((v) => !v)}>
@@ -49,16 +41,16 @@ function BotaoLigar({ telefone, onLigar }) {
       {aberto && (
         <div className="seletor-telefone-lista">
           {numeros.map((numero, indice) => (
-            <a
+            <button
               key={`${numero}-${indice}`}
-              href={linkTelefone(numero)}
+              type="button"
               onClick={() => {
                 setAberto(false);
                 onLigar();
               }}
             >
               {numero}
-            </a>
+            </button>
           ))}
         </div>
       )}
