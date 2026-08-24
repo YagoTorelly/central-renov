@@ -5,7 +5,7 @@ const {
   proprietarioRepository,
 } = require("../data/repositories");
 const { calcularRenovacao } = require("../domain/renovacao");
-const { linkNegocioPipedrive } = require("../utils/pipedriveLink");
+const { linkNegocioPipedrive, linkNovoNegocioPipedrive } = require("../utils/pipedriveLink");
 
 const VISUALIZAR_TODOS = "todos";
 
@@ -25,7 +25,7 @@ async function listarMeusClientes(proprietarioId) {
   for (const negocio of negociosGanhos) {
     const pessoaEmpresa = await pessoaEmpresaRepository.buscarPorId(negocio.pessoaEmpresaId);
     const lembrete = await lembreteRepository.buscarPorNegocio(negocio.id);
-    const renovacao = calcularRenovacao(negocio, new Date(), lembrete?.novaDataRenovacao);
+    const renovacao = calcularRenovacao(negocio, new Date(), lembrete);
     let proprietarioNome = null;
     if (verTodos) {
       const proprietario = await proprietarioRepository.buscarPorId(negocio.proprietarioId);
@@ -46,6 +46,12 @@ async function listarMeusClientes(proprietarioId) {
       valor: negocio.valor ?? null,
       moeda: negocio.moeda || "BRL",
       linkPipedrive: linkNegocioPipedrive(negocio.pipedriveDealId),
+      linkNovoNegocio: linkNovoNegocioPipedrive({
+        pessoaEmpresaId: pessoaEmpresa.id,
+        nome: pessoaEmpresa.nome,
+        produto: negocio.produto,
+        seguradora: negocio.seguradora,
+      }),
       lembreteMotivo: lembrete?.motivo || null,
       proprietarioNome,
       ...renovacao,

@@ -4,6 +4,7 @@ import {
   IconBell,
   IconBrandWhatsapp,
   IconExternalLink,
+  IconFilePlus,
   IconFolderOff,
   IconMail,
 } from "@tabler/icons-react";
@@ -25,6 +26,9 @@ const FILTROS = [
 ];
 
 const OPCOES_MESES = [1, 2, 3, 6, 12];
+// Cliente que nao quer fazer nenhuma alteracao no contrato agora e nao deu
+// prazo: some com a data e o alerta ate alguem adiar de novo.
+const INDETERMINADO = "indeterminado";
 
 function normalizarBusca(texto) {
   return texto.trim().toLowerCase();
@@ -124,7 +128,11 @@ export default function MeusClientes() {
         meses,
         motivo,
       });
-      setMensagem(`Renovação de ${clienteEmEdicao.nome} adiada em ${meses} mês(es).`);
+      setMensagem(
+        meses === INDETERMINADO
+          ? `Renovação de ${clienteEmEdicao.nome} marcada como indeterminada.`
+          : `Renovação de ${clienteEmEdicao.nome} adiada em ${meses} mês(es).`
+      );
       fecharModal();
       carregar();
     } catch (e) {
@@ -231,7 +239,7 @@ export default function MeusClientes() {
                       )}
                       {c.ajustadaManualmente && (
                         <span className="badge-manual" title={c.lembreteMotivo || "Renovação adiada manualmente"}>
-                          <IconBell size={13} /> adiada
+                          <IconBell size={13} /> {c.renovacaoIndeterminada ? "indeterminada" : "adiada"}
                         </span>
                       )}
                     </td>
@@ -243,6 +251,17 @@ export default function MeusClientes() {
                         <button className="botao-icone" onClick={() => abrirModal(c)} title="Adiar renovação">
                           <IconBell size={14} /> Adiar
                         </button>
+                        {c.linkNovoNegocio && (
+                          <a
+                            className="botao-icone"
+                            href={c.linkNovoNegocio}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Abrir novo negócio no Pipedrive já com o cliente preenchido"
+                          >
+                            <IconFilePlus size={14} /> Renovar
+                          </a>
+                        )}
                         {c.linkPipedrive && (
                           <a
                             className="botao-icone"
@@ -280,7 +299,9 @@ export default function MeusClientes() {
       <Modal titulo="Adiar renovação" aberto={Boolean(clienteEmEdicao)} onFechar={fecharModal}>
         <p style={{ margin: 0, fontSize: "0.88rem", color: "var(--cor-texto-suave)" }}>
           Cliente <strong>{clienteEmEdicao?.nome}</strong> confirmou que vai continuar no plano atual. Daqui a
-          quantos meses o vendedor deve ser lembrado de novo?
+          quantos meses o vendedor deve ser lembrado de novo? Use{" "}
+          <strong>Indeterminado</strong> quando o cliente não quiser fazer nenhuma alteração e não der prazo -
+          o contrato fica sem data de renovação e sem alerta.
         </p>
 
         <div className="campo-formulario">
@@ -296,6 +317,14 @@ export default function MeusClientes() {
                 {m} {m === 1 ? "mês" : "meses"}
               </button>
             ))}
+            <button
+              className={`chip ${meses === INDETERMINADO ? "ativo" : ""}`}
+              onClick={() => setMeses(INDETERMINADO)}
+              type="button"
+              title="Cliente não quer fazer nenhuma alteração e não deu prazo"
+            >
+              Indeterminado
+            </button>
           </div>
         </div>
 

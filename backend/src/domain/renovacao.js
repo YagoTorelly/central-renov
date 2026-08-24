@@ -32,11 +32,26 @@ function calcularAlertaRenovacao(diasRestantes) {
 // decisao confirmada em 2026-08-10: mostra o cliente sem alerta, em vez de
 // inventar uma data (setMonth(x + null) silenciosamente vira setMonth(x)).
 //
-// dataRenovacaoManual (opcional): quando o vendedor fala com o cliente e ele
-// confirma que vai continuar no plano, o vendedor pode adiar o lembrete pra
-// daqui a X meses (ver lembreteService.js). Essa data manual sempre tem
-// prioridade sobre o calculo automatico - decisao confirmada em 2026-08-11.
-function calcularRenovacao(negocio, hoje = new Date(), dataRenovacaoManual = null) {
+// lembreteManual (opcional, { novaDataRenovacao, indeterminado }): quando o
+// vendedor fala com o cliente e ele confirma que vai continuar no plano, o
+// vendedor pode adiar o lembrete pra daqui a X meses (ver
+// lembreteService.js). Essa data manual sempre tem prioridade sobre o
+// calculo automatico - decisao confirmada em 2026-08-11. indeterminado = o
+// cliente nao quer mexer no contrato e nao deu prazo nenhum: fica sem data e
+// sem alerta (igual contrato sem vigencia), mas marcado como ajustado
+// manualmente pra ficar claro que alguem ja falou com ele.
+function calcularRenovacao(negocio, hoje = new Date(), lembreteManual = null) {
+  if (lembreteManual?.indeterminado) {
+    return {
+      dataRenovacao: null,
+      diasRestantes: null,
+      alerta: null,
+      ajustadaManualmente: true,
+      renovacaoIndeterminada: true,
+    };
+  }
+
+  const dataRenovacaoManual = lembreteManual?.novaDataRenovacao || null;
   if (dataRenovacaoManual) {
     const diasRestantes = diasAteRenovacao(dataRenovacaoManual, hoje);
     return {
@@ -44,11 +59,18 @@ function calcularRenovacao(negocio, hoje = new Date(), dataRenovacaoManual = nul
       diasRestantes,
       alerta: calcularAlertaRenovacao(diasRestantes),
       ajustadaManualmente: true,
+      renovacaoIndeterminada: false,
     };
   }
 
   if (negocio.mesesVigencia == null) {
-    return { dataRenovacao: null, diasRestantes: null, alerta: null, ajustadaManualmente: false };
+    return {
+      dataRenovacao: null,
+      diasRestantes: null,
+      alerta: null,
+      ajustadaManualmente: false,
+      renovacaoIndeterminada: false,
+    };
   }
   const mesesAteRenovacao = negocio.mesesVigencia - MESES_ANTECEDENCIA_RENOVACAO;
   const dataRenovacao = calcularDataRenovacao(negocio.dataInicio, mesesAteRenovacao);
@@ -58,6 +80,7 @@ function calcularRenovacao(negocio, hoje = new Date(), dataRenovacaoManual = nul
     diasRestantes,
     alerta: calcularAlertaRenovacao(diasRestantes),
     ajustadaManualmente: false,
+    renovacaoIndeterminada: false,
   };
 }
 

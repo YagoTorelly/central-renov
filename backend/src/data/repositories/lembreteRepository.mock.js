@@ -5,11 +5,12 @@
 // de contato fica no atividadeRepository).
 const lembretesPorNegocio = new Map();
 
-async function definir({ negocioId, proprietarioId, novaDataRenovacao, motivo }) {
+async function definir({ negocioId, proprietarioId, novaDataRenovacao, indeterminado, motivo }) {
   const lembrete = {
     negocioId,
     proprietarioId,
-    novaDataRenovacao,
+    novaDataRenovacao: novaDataRenovacao || null,
+    indeterminado: Boolean(indeterminado),
     motivo: motivo || null,
     criadoEm: new Date().toISOString().slice(0, 10),
   };
