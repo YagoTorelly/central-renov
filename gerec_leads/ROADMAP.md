@@ -3,7 +3,7 @@
 - **Baseline:** 25 de agosto de 2026
 - **Fonte funcional:** `SPEC_GERENCIADOR_DE_LEADS_WTG.md`
 - **Estratégia:** construir fundação, banco e núcleo transacional antes da interface
-- **Estado atual:** Etapa 0 concluída; Etapa 1 em planejamento
+- **Estado atual:** Etapa 1 concluída; Etapa 2 aguardando planejamento
 
 ## Regra de avanço
 
