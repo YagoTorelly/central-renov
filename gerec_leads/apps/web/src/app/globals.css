@@ -1,1 +1,96 @@
 @import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --background: #f3f5f4;
+  --foreground: #17201d;
+  --surface: #ffffff;
+  --border: #d8dfdc;
+  --accent: #176b51;
+  --muted: #596660;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 1280px;
+  background: var(--background);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.foundation-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+}
+
+.foundation-card {
+  width: min(100%, 640px);
+  padding: clamp(24px, 6vw, 48px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.foundation-kicker {
+  margin: 0 0 12px;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.foundation-card h1 {
+  margin: 0;
+  font-size: clamp(2rem, 7vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.foundation-card > p:not(.foundation-kicker) {
+  max-width: 54ch;
+  margin: 20px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.health-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-weight: 650;
+}
+
+.health-line span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #9a5b15;
+}
+
+.health-line[data-status="connected"] span {
+  background: var(--accent);
+}
+
+.health-line[data-status="unavailable"] span {
+  background: #a43737;
+}
