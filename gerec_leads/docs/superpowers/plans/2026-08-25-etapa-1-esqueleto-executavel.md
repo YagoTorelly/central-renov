@@ -6,7 +6,7 @@
 
 **Architecture:** Um workspace npm concentra a aplicação Next.js em `apps/web`; o Supabase CLI controla a infraestrutura local em `supabase`; scripts pequenos em `tooling` isolam configuração e verificações. O navegador recebe somente URL e chave pública local. O único arquivo externo ao diretório do produto é o workflow de descoberta obrigatória do GitHub Actions.
 
-**Tech Stack:** Node.js 24 LTS, npm workspaces, Next.js 16/App Router, React, TypeScript, Supabase CLI 2.115.0, Docker, Vitest 4.1.11, Playwright 1.62.1, ESLint e Prettier 3.9.6.
+**Tech Stack:** Node.js 24 LTS, npm workspaces, Next.js 16/App Router, React, TypeScript, Supabase CLI 2.115.0, Docker, Vitest 4.1.11, Playwright 1.62.1, YAML 2.8.1, ESLint e Prettier 3.9.6.
 
 **Spec:** `gerec_leads/SPEC_GERENCIADOR_DE_LEADS_WTG.md`, `gerec_leads/ROADMAP.md`, `gerec_leads/docs/ARQUITETURA.md` e `gerec_leads/docs/DECISOES.md`.
 
@@ -17,6 +17,7 @@
 - [ ] Não criar tabelas comerciais, migrações de domínio, usuários, RLS, fila, campanhas, integrações reais ou telas definitivas nesta etapa.
 - [ ] Não copiar código das pastas legadas. Materiais legados continuam disponíveis apenas como referência visual futura.
 - [ ] Nunca versionar `.env.local`, chaves administrativas, `service_role`, dados pessoais ou saída sensível do Supabase.
+- [ ] Tratar a interface como exclusivamente desktop, com largura mínima suportada de 1280 px; não implementar nem prometer suporte funcional a tablet ou celular.
 - [ ] Usar `apply_patch` para edições manuais e preservar mudanças preexistentes do usuário.
 - [ ] Seguir TDD em cada unidade criada: teste falhando, implementação mínima, teste passando e verificação de regressão.
 - [ ] Não avançar para uma tarefa enquanto o gate da tarefa atual não passar.
@@ -34,6 +35,7 @@
 | `gerec_leads/tooling/` | Testes estruturais e scripts locais sem regra de negócio. |
 | `gerec_leads/tests/e2e/` | Teste ponta a ponta da fundação. |
 | `gerec_leads/integrations/n8n/` | Limite documentado para workflows futuros; nenhuma conexão real agora. |
+| `gerec_leads/WTG - Leads.xlsx` | Fixture mock A–Q fornecido pelo usuário e já versionado no pré-requisito; não modificar na Etapa 1. |
 | `.github/workflows/gerec-leads-ci.yml` | Entrada mínima do GitHub Actions, limitada ao workspace. |
 
 ---
@@ -214,8 +216,6 @@ git commit -m "chore(gerec-leads): cria workspace executavel"
 - Create: `gerec_leads/prettier.config.mjs`
 - Create: `gerec_leads/.prettierignore`
 - Create: `gerec_leads/apps/web/vitest.config.ts`
-- Create: `gerec_leads/apps/web/src/lib/foundation/project-meta.test.ts`
-- Create: `gerec_leads/apps/web/src/lib/foundation/project-meta.ts`
 - Modify: `gerec_leads/package.json`
 - Modify: `gerec_leads/apps/web/package.json`
 - Modify: `gerec_leads/package-lock.json`
@@ -245,7 +245,7 @@ Preservar os scripts já existentes ao mesclar esse bloco. Adicionar ao `apps/we
 ```json
 {
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run --passWithNoTests"
   }
 }
 ```
@@ -281,7 +281,7 @@ package-lock.json
 **/*.md
 ```
 
-- [ ] **Step 3: Escrever o primeiro teste unitário**
+- [ ] **Step 3: Configurar o runner unitário sem criar teste artificial de constante**
 
 Criar `apps/web/vitest.config.ts`:
 
@@ -296,47 +296,15 @@ export default defineConfig({
 });
 ```
 
-Criar `apps/web/src/lib/foundation/project-meta.test.ts`:
-
-```ts
-import { describe, expect, it } from "vitest";
-
-import { getProjectMeta } from "./project-meta";
-
-describe("getProjectMeta", () => {
-  it("expõe o contexto invariável da aplicação", () => {
-    expect(getProjectMeta()).toEqual({
-      name: "Gerenciador de Leads WTG",
-      locale: "pt-BR",
-      timeZone: "America/Sao_Paulo",
-    });
-  });
-});
-```
-
-- [ ] **Step 4: Executar o teste e confirmar que falha pela implementação ausente**
+- [ ] **Step 4: Comprovar que o runner encerra com sucesso sem testes**
 
 ```powershell
 npm run test
 ```
 
-Esperado: `FAIL` com erro de importação de `./project-meta`.
+Esperado: `PASS`, com o Vitest informando que não encontrou testes e encerrando com código zero por causa de `--passWithNoTests`. Os primeiros testes comportamentais reais serão criados na Task 4.
 
-- [ ] **Step 5: Implementar somente o necessário para passar**
-
-Criar `apps/web/src/lib/foundation/project-meta.ts`:
-
-```ts
-export function getProjectMeta() {
-  return {
-    name: "Gerenciador de Leads WTG",
-    locale: "pt-BR",
-    timeZone: "America/Sao_Paulo",
-  } as const;
-}
-```
-
-- [ ] **Step 6: Executar o gate e formatar**
+- [ ] **Step 5: Executar o gate e formatar**
 
 ```powershell
 npm run test
@@ -344,9 +312,9 @@ npm run format
 npm run check
 ```
 
-Esperado: teste unitário aprovado e `check` totalmente verde.
+Esperado: runner aprovado sem testes e `check` totalmente verde.
 
-- [ ] **Step 7: Commit das ferramentas de qualidade**
+- [ ] **Step 6: Commit das ferramentas de qualidade**
 
 ```powershell
 git add gerec_leads
@@ -758,7 +726,7 @@ export default async function Home() {
 }
 ```
 
-Substituir `globals.css` pelo CSS mínimo abaixo. Ele é apenas diagnóstico, não o design definitivo:
+Substituir `globals.css` pelo CSS mínimo abaixo. Ele é apenas diagnóstico, não o design definitivo, e respeita o suporte exclusivamente desktop aprovado:
 
 ```css
 @import "tailwindcss";
@@ -778,7 +746,7 @@ Substituir `globals.css` pelo CSS mínimo abaixo. Ele é apenas diagnóstico, n�
 }
 
 html {
-  min-width: 320px;
+  min-width: 1280px;
   background: var(--background);
 }
 
@@ -926,7 +894,10 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1440, height: 900 },
+      },
     },
   ],
   webServer: {
@@ -955,14 +926,15 @@ test("exibe a aplicação e a conexão local", async ({ page }) => {
 });
 ```
 
-- [ ] **Step 4: Executar primeiro sem corrigir silenciosamente**
+- [ ] **Step 4: Comprovar RED com o Supabase explicitamente parado**
 
 ```powershell
 npm run test:e2e:install
+npm run supabase:stop
 npm run test:e2e
 ```
 
-Se falhar, registrar se a causa é navegador ausente, Supabase parado, `.env.local` ausente, porta ocupada ou regressão da página. Não alterar a expectativa correta para mascarar falha de infraestrutura.
+Esperado: `FAIL` porque o teste exige “Supabase local conectado” e o serviço foi parado deliberadamente. Registrar essa evidência RED. Se a falha ocorrer antes dessa asserção, diagnosticar navegador ausente, `.env.local` ausente, porta ocupada ou regressão da página; não alterar a expectativa correta para mascarar falha de infraestrutura.
 
 - [ ] **Step 5: Garantir a infraestrutura e repetir**
 
@@ -992,8 +964,13 @@ git commit -m "test(gerec-leads): valida fundacao no navegador"
 - Create: `.github/workflows/gerec-leads-ci.yml`
 - Create: `gerec_leads/tooling/tests/ci-contract.test.mjs`
 - Modify: `gerec_leads/package.json`
+- Modify: `gerec_leads/package-lock.json`
 
-- [ ] **Step 1: Escrever o contrato antes do workflow**
+- [ ] **Step 1: Instalar o parser YAML e escrever o contrato antes do workflow**
+
+```powershell
+npm install --save-dev yaml@2.8.1
+```
 
 Criar `gerec_leads/tooling/tests/ci-contract.test.mjs`:
 
@@ -1003,6 +980,7 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { parse } from "yaml";
 
 const productRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const workflowPath = resolve(
@@ -1011,19 +989,39 @@ const workflowPath = resolve(
 );
 
 test("o CI permanece limitado ao Gerenciador de Leads", () => {
-  const workflow = readFileSync(workflowPath, "utf8");
-  const declaredPaths = [...workflow.matchAll(/^\s+- ["']([^"']+)["']\s*$/gm)].map(
-    ([, path]) => path,
+  const workflow = parse(readFileSync(workflowPath, "utf8"));
+
+  assert.deepEqual(workflow.on.push.paths, ["gerec_leads/**"]);
+  assert.deepEqual(workflow.on.pull_request.paths, ["gerec_leads/**"]);
+  assert.equal(workflow.defaults.run["working-directory"], "gerec_leads");
+
+  const steps = workflow.jobs.quality.steps;
+  assert.equal(steps[0].uses, "actions/checkout@v7");
+
+  const setupNode = steps.find((step) => step.uses === "actions/setup-node@v7");
+  assert.ok(setupNode);
+  assert.equal(setupNode.with["node-version"], 24);
+  assert.equal(setupNode.with["cache-dependency-path"], "gerec_leads/package-lock.json");
+
+  assert.deepEqual(
+    steps.flatMap((step) => (step.run ? [step.run] : [])),
+    [
+      "npm ci",
+      "npm run test:e2e:install:ci",
+      "npm run supabase:start",
+      "npm run env:local",
+      "npm run check",
+      "npm run test:e2e",
+      "npm run supabase:stop",
+    ],
   );
 
-  assert.match(workflow, /paths:\s*\n\s*- ['"]gerec_leads\/\*\*['"]/);
-  assert.deepEqual(declaredPaths, ["gerec_leads/**", "gerec_leads/**"]);
-  assert.match(workflow, /working-directory: gerec_leads/);
-  assert.match(workflow, /node-version: 24/);
-  assert.match(workflow, /npm ci/);
-  assert.match(workflow, /npm run check/);
-  assert.match(workflow, /npm run test:e2e/);
-  assert.doesNotMatch(workflow, /service_role|SERVICE_ROLE_KEY/);
+  const stopSupabase = steps.find((step) => step.run === "npm run supabase:stop");
+  assert.equal(stopSupabase?.if, "always()");
+
+  const serializedWorkflow = JSON.stringify(workflow);
+  assert.equal(serializedWorkflow.includes("service_role"), false);
+  assert.equal(serializedWorkflow.includes("SERVICE_ROLE_KEY"), false);
 });
 ```
 
@@ -1125,7 +1123,7 @@ npm run check
 npm run test:e2e
 ```
 
-Esperado: tudo aprovado e gatilhos limitados a `gerec_leads/**`.
+Esperado: tudo aprovado; o YAML é interpretado com `parse`, e gatilhos, diretório de trabalho, Node 24 e steps são validados semanticamente.
 
 - [ ] **Step 5: Revisar o diff externo antes do commit**
 
@@ -1139,7 +1137,7 @@ Confirmar visualmente: nenhum segredo, nenhuma referência às aplicações lega
 - [ ] **Step 6: Commit do CI**
 
 ```powershell
-git add .github/workflows/gerec-leads-ci.yml gerec_leads/package.json gerec_leads/tooling/tests/ci-contract.test.mjs
+git add .github/workflows/gerec-leads-ci.yml gerec_leads/package.json gerec_leads/package-lock.json gerec_leads/tooling/tests/ci-contract.test.mjs
 git commit -m "ci(gerec-leads): adiciona pipeline isolado"
 ```
 

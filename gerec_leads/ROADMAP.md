@@ -110,6 +110,7 @@ Critério de saída:
 Entregáveis:
 
 - contrato versionado para Google Sheets;
+- fixture `WTG - Leads.xlsx` documentado como mock A–Q da aba `Leads`, com projeção de origem M–P para o vendedor;
 - adaptador para a planilha mock e substituição localizada pela planilha final;
 - bootstrap completo com liberação manual em lotes;
 - sincronização incremental idempotente;
@@ -147,7 +148,7 @@ Critério de saída:
 
 - administrador executa os casos de uso previstos sem acesso direto ao banco;
 - ações críticas possuem confirmação e auditoria;
-- interface passa por acessibilidade, responsividade e E2E do perfil.
+- interface desktop passa por acessibilidade e E2E do perfil em largura suportada de no mínimo 1280 px.
 
 ## Etapa 6 — Frontend do vendedor
 
@@ -161,7 +162,7 @@ Entregáveis:
 - posição e saldo individuais na fila;
 - detalhe, contato, feedback e tentativa;
 - qualificação, desqualificação, encerramento e ganho;
-- experiência responsiva para desktop, tablet e celular.
+- experiência exclusivamente desktop, com largura mínima suportada de 1280 px.
 
 Critério de saída:
 

@@ -14,6 +14,8 @@ Estas instruções valem para todo arquivo dentro de `gerec_leads/`.
 - O Gerenciador de Leads é um projeto novo e isolado dentro de `gerec_leads/`.
 - Não reutilize código, arquitetura, dados ou integrações das pastas legadas `backend/`, `frontend/` e `ingestao/` sem análise e autorização explícita.
 - Os materiais visuais legados da WTG podem ser consultados apenas como referência de identidade visual.
+- A interface é exclusivamente desktop, com largura mínima suportada de 1280 px. Tablet e celular estão fora do escopo funcional.
+- `WTG - Leads.xlsx` é o fixture mock atual A–Q. Preserve o binário; somente M–P formam a projeção de origem do vendedor, Q fica excluída e M não deve ser interpretada como CNPJ real.
 - Todo código, migração, teste, documentação e configuração do novo sistema deve permanecer dentro de `gerec_leads/`.
 - A única exceção estrutural aprovada é `.github/workflows/gerec-leads-ci.yml`, porque o GitHub Actions só descobre workflows nessa pasta da raiz. Esse arquivo deve reagir apenas a mudanças em `gerec_leads/**`; toda a lógica e configuração executada por ele permanece em `gerec_leads/`.
 
@@ -44,6 +46,7 @@ Também:
 - Não coloque lógica de negócio crítica em controllers, handlers, componentes React ou workflows do n8n.
 - O n8n atua como adaptador de Google Sheets, agendas e notificações.
 - Google Sheets é somente origem; o sistema nunca escreve na planilha.
+- A planilha definitiva continua uma dependência posterior. Mantenha o contrato físico da origem atrás do adapter e não enfraqueça identidade, deduplicação ou recorrência por CNPJ para acomodar o mock.
 - Toda mudança de banco usa nova migração versionada. Nunca edite uma migração já aplicada.
 - RLS deve proteger os dados no banco; ocultar elementos na interface não é controle de acesso.
 - `service_role` e demais segredos nunca podem chegar ao navegador.

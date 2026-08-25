@@ -49,7 +49,7 @@ Depois da entrega, o vendedor registra contatos, tentativas e feedbacks periódi
 
 Não converter uma venda não desqualifica o lead. A desqualificação é reservada a critérios objetivos definidos pela WTG.
 
-O MVP terá interface responsiva, autenticação por e-mail e senha, dashboards por perfil, campanhas, fila, pendências, histórico, exportações e notificações por e-mail. A integração de um chatbot e de uma caixa corporativa compartilhada do WhatsApp será uma fase posterior.
+O MVP terá interface exclusivamente desktop, autenticação por e-mail e senha, dashboards por perfil, campanhas, fila, pendências, histórico, exportações e notificações por e-mail. A integração de um chatbot e de uma caixa corporativa compartilhada do WhatsApp será uma fase posterior.
 
 ---
 
@@ -439,6 +439,34 @@ override administrativo > valor atual da planilha > valor anterior importado
 ### 12.9 Coluna `Fase`
 
 A `Fase` da planilha é dado informativo de origem. Ela não pode atribuir lead, desqualificar, marcar venda, alterar proprietário ou substituir os estados internos.
+
+### 12.10 Contrato físico provisório do workbook mock
+
+O fixture `WTG - Leads.xlsx` representa somente a planilha mock atual. Na aba `Leads`, o contrato físico provisório ocupa as colunas A–Q, nesta ordem e com estes headers exatos:
+
+| Coluna | Header físico do mock |
+|---|---|
+| A | `id` |
+| B | `created_time` |
+| C | `ad_id` |
+| D | `ad_name` |
+| E | `adset_id` |
+| F | `adset_name` |
+| G | `campaign_id` |
+| H | `campaign_name` |
+| I | `form_id` |
+| J | `form_name` |
+| K | `is_organic` |
+| L | `platform` |
+| M | `você_tem_cnpj_ou_mei?` |
+| N | `full_name` |
+| O | `phone_number` |
+| P | `email` |
+| Q | `lead_status` |
+
+Para o vendedor, a projeção de dados originados da planilha contém exclusivamente M–P: resposta a `você_tem_cnpj_ou_mei?`, nome, telefone e e-mail. A coluna Q `lead_status` não integra essa projeção. Campos operacionais internos autorizados pelo sistema — como campanha, status interno, prazo e tentativas — não são dados originados da planilha e continuam disponíveis conforme o perfil e as permissões desta especificação.
+
+A coluna M contém apenas a resposta a uma pergunta; ela não contém o número real do CNPJ e não satisfaz a identidade, a deduplicação nem a recorrência por CNPJ definidas na seção 13. A planilha definitiva continua sendo uma dependência posterior. O adapter é a fronteira obrigatória entre este contrato físico provisório e o contrato definitivo, para que a troca da planilha não altere silenciosamente as regras canônicas.
 
 ---
 
@@ -950,7 +978,7 @@ As categorias não devem ser combinadas no mesmo e-mail:
 ### 23.1 Diretrizes gerais
 
 - Interface em português do Brasil.
-- Desktop-first, responsiva para tablet e celular.
+- Interface exclusivamente desktop, com largura mínima suportada de 1280 px; tablet e celular estão fora do escopo funcional.
 - Estados e prazos devem ser entendidos por texto, não apenas cor.
 - Datas exibidas no horário de São Paulo.
 - Ações finais exigem confirmação clara.
@@ -1432,7 +1460,7 @@ Cada registro deve conter `actor_id`, ação, entidade, antes/depois quando apli
 | Escalabilidade | Paginação e filtros no servidor; sem carregar toda a base no cliente |
 | Disponibilidade | Falha de integração não interrompe consultas e feedbacks já disponíveis |
 | Acessibilidade | Navegação por teclado, foco visível, rótulos e contraste adequados |
-| Responsividade | Uso funcional em desktop, tablet e celular |
+| Suporte desktop | Uso funcional em desktop com largura mínima de 1280 px; tablet e celular fora do escopo funcional |
 | Localização | pt-BR, moeda BRL e horário de São Paulo |
 | Histórico | Dados operacionais não são apagados fisicamente por ações comuns |
 | Backup | Backups automáticos do banco e procedimento de restauração testado |
@@ -1767,6 +1795,8 @@ Essas configurações não alteram as regras desta especificação.
 34. Vendedor vê apenas seus leads, métricas e posição.
 35. Somente administrador reordena a fila e gerencia ausências.
 36. WhatsApp corporativo compartilhado fica para a fase posterior.
+37. A interface é exclusivamente desktop, com largura mínima suportada de 1280 px; tablet e celular ficam fora do escopo funcional.
+38. `WTG - Leads.xlsx` é o fixture mock atual A–Q; somente M–P compõem a projeção de origem do vendedor, Q fica excluída, M não é CNPJ real e a planilha definitiva será integrada posteriormente pela fronteira do adapter.
 
 ---
 
@@ -1784,6 +1814,28 @@ Qualquer alteração futura deve registrar:
 - aprovação de Yago/administrador do produto.
 
 Nenhuma IA ou desenvolvedor deve “melhorar” uma regra de negócio sem apresentar a mudança explicitamente.
+
+### GOV-001 — Interface exclusivamente desktop
+
+- **Regra anterior:** o MVP previa interface responsiva, funcional em desktop, tablet e celular.
+- **Nova regra:** o produto é exclusivamente desktop, com largura mínima suportada de 1280 px; tablet e celular ficam fora do escopo funcional.
+- **Motivo:** alinhar a experiência ao ambiente operacional aprovado e evitar custo e critérios de aceite para dispositivos que não serão usados.
+- **Impacto em dados existentes:** nenhum; a mudança afeta apenas suporte de interface e critérios de apresentação.
+- **Impacto em métricas:** nenhum nas fórmulas de negócio; métricas técnicas de uso e qualidade passam a considerar somente o viewport desktop suportado.
+- **Migração necessária:** nenhuma migração de dados; documentação, estilos e testes visuais/E2E devem adotar o mínimo de 1280 px.
+- **Novos testes de aceite:** validar os fluxos funcionais e a acessibilidade em viewport desktop, incluindo o viewport de referência 1440 × 900; não criar gates funcionais para tablet ou celular.
+- **Aprovação:** Yago, em 25 de agosto de 2026.
+
+### GOV-002 — Workbook mock e projeção de origem do vendedor
+
+- **Regra anterior:** o contrato canônico descrevia a planilha definitiva esperada, enquanto a estrutura física da planilha mock atual e a projeção de origem do vendedor não estavam registradas.
+- **Nova regra:** `WTG - Leads.xlsx` é o fixture mock atual da aba `Leads`, com headers A–Q definidos na seção 12.10; somente M–P são dados de origem mostrados ao vendedor, Q fica fora dessa projeção, e campos operacionais internos autorizados continuam disponíveis conforme o perfil. A coluna M é uma pergunta/resposta, não um número real de CNPJ. A planilha definitiva será conectada posteriormente pela fronteira do adapter.
+- **Motivo:** tornar o fixture atual reproduzível sem confundi-lo com o contrato definitivo nem ampliar a exposição dos dados de origem.
+- **Impacto em dados existentes:** nenhum dado é migrado neste registro. Como o mock não fornece CNPJ real, seus registros ainda não satisfazem identidade, deduplicação ou recorrência por CNPJ e não podem ser tratados como produção para essas regras.
+- **Impacto em métricas:** as fórmulas aprovadas não mudam; métricas dependentes de identidade por CNPJ só podem ser calculadas quando a origem definitiva fornecer documento real e válido.
+- **Migração necessária:** nenhuma agora. Na chegada da planilha definitiva, mapear e validar o novo contrato no adapter, preservando histórico e regras canônicas.
+- **Novos testes de aceite:** verificar os 17 headers A–Q e sua ordem; comprovar a projeção M–P e a exclusão de Q; impedir que M seja interpretada como CNPJ; testar a substituição localizada do contrato pelo adapter sem enfraquecer permissões.
+- **Aprovação:** Yago, em 25 de agosto de 2026.
 
 ---
 

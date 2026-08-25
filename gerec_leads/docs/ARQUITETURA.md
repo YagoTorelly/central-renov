@@ -28,6 +28,7 @@ gerec_leads/
 ├── tooling/                  # Scripts de desenvolvimento e validação
 ├── AGENTS.md
 ├── ROADMAP.md
+├── WTG - Leads.xlsx         # Fixture mock A–Q fornecido pelo usuário
 └── SPEC_GERENCIADOR_DE_LEADS_WTG.md
 ```
 
@@ -49,7 +50,8 @@ Responsável por:
 - páginas e ações autorizadas;
 - validação de entrada para experiência do usuário;
 - consultas paginadas e filtradas no servidor;
-- apresentação em português do Brasil.
+- apresentação em português do Brasil;
+- experiência exclusivamente desktop, com largura mínima suportada de 1280 px.
 
 Não pode decidir diretamente:
 
@@ -88,7 +90,9 @@ Responsável por:
 - chamar o comando de ingestão;
 - registrar e reprocessar falhas externas.
 
-O adapter da planilha mock será substituído de forma localizada quando a planilha definitiva for fornecida.
+O fixture `WTG - Leads.xlsx` registra a planilha mock atual: aba `Leads`, colunas A–Q. Para o vendedor, a projeção de dados originados da planilha é limitada a M–P (`você_tem_cnpj_ou_mei?`, `full_name`, `phone_number` e `email`); Q `lead_status` fica excluída. Campanha, status interno, prazo, tentativas e outros campos operacionais autorizados pelo sistema continuam disponíveis conforme o perfil porque não compõem essa projeção de origem.
+
+A coluna M é somente a resposta a uma pergunta e não contém o número real do CNPJ. Portanto, o mock não satisfaz as regras de identidade, deduplicação e recorrência por CNPJ. O adapter da planilha mock será substituído de forma localizada quando a planilha definitiva for fornecida, sem deslocar essas regras para a integração.
 
 ### Adapter de notificações
 

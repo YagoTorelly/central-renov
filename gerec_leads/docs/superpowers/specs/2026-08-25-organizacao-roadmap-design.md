@@ -64,7 +64,9 @@ Adiciona autenticação, deploy, observabilidade e interfaces operacionais sem b
 ### Ingestão
 
 - Não haverá migração do legado.
-- A planilha mock sustenta o contrato inicial.
+- `WTG - Leads.xlsx` é o fixture da planilha mock atual, com A–Q na aba `Leads`.
+- Somente M–P formam a projeção de origem do vendedor; Q fica excluída, e campos operacionais internos autorizados permanecem disponíveis conforme o perfil.
+- M é resposta à pergunta `você_tem_cnpj_ou_mei?`, não o número real do CNPJ; o mock ainda não satisfaz identidade, deduplicação ou recorrência por CNPJ.
 - A planilha final altera somente o adapter e seus testes.
 - Bootstrap importa tudo, mas o administrador libera lotes manualmente.
 - Operação normal sincroniza a cada 5 minutos e aciona o motor da fila para leads válidos.
@@ -74,7 +76,7 @@ Adiciona autenticação, deploy, observabilidade e interfaces operacionais sem b
 - Só começa depois de banco, RLS, núcleo e backend operacional testados.
 - Implementa primeiro a base compartilhada, depois administrador e vendedor.
 - Usa identidade visual WTG; materiais legados podem servir apenas como referência visual.
-- Deve ser responsivo e acessível.
+- É exclusivamente desktop, acessível e suportado a partir de 1280 px de largura; tablet e celular ficam fora do escopo funcional.
 
 ### Integrações e implantação
 
@@ -99,7 +101,7 @@ Adiciona autenticação, deploy, observabilidade e interfaces operacionais sem b
 - Relógio injetável para fins de semana e feriados.
 - Contratos para planilha mock/final e notificações.
 - E2E separado por perfil.
-- Verificação visual, acessibilidade e responsividade antes do piloto.
+- Verificação visual e de acessibilidade em desktop antes do piloto.
 
 ## Roadmap aprovado
 
