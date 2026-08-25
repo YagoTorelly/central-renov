@@ -33,6 +33,12 @@ gerec_leads/
 
 A estrutura pode ganhar arquivos internos durante o planejamento, mas não deve criar um backend Node separado sem nova decisão arquitetural.
 
+O workspace usa Node.js 24 LTS. A versão fica declarada em `.nvmrc` e em `package.json` para reduzir diferenças entre desenvolvimento local e CI.
+
+### Exceção técnica do CI
+
+O único arquivo do novo sistema autorizado fora de `gerec_leads/` é `.github/workflows/gerec-leads-ci.yml`, pois essa localização é obrigatória para descoberta pelo GitHub Actions. O workflow observa somente `gerec_leads/**` e chama scripts definidos dentro do workspace; ele não recebe regras de negócio nem configurações secretas.
+
 ## Módulos e interfaces
 
 ### Aplicação web

@@ -3,7 +3,7 @@
 - **Baseline:** 25 de agosto de 2026
 - **Fonte funcional:** `SPEC_GERENCIADOR_DE_LEADS_WTG.md`
 - **Estratégia:** construir fundação, banco e núcleo transacional antes da interface
-- **Estado atual:** Etapa 0 em revisão
+- **Estado atual:** Etapa 0 concluída; Etapa 1 em planejamento
 
 ## Regra de avanço
 
@@ -38,14 +38,18 @@ Critério de saída:
 
 **Objetivo:** criar uma fundação local reproduzível, ainda sem regras funcionais.
 
+Plano aprovado para execução: `docs/superpowers/plans/2026-08-25-etapa-1-esqueleto-executavel.md`.
+
 Entregáveis:
 
 - workspace modular;
+- Node.js 24 LTS declarado como runtime do workspace;
 - Next.js com App Router e TypeScript em `apps/web`;
 - Supabase local executado por Docker;
 - diretórios para n8n, testes, documentação e ferramentas;
 - `.env.example` sem segredos;
 - lint, formatação, typecheck, testes e CI;
+- workflow mínimo do GitHub Actions na exceção aprovada `.github/workflows/gerec-leads-ci.yml`, limitado a `gerec_leads/**`;
 - página mínima de diagnóstico da aplicação e conexão local.
 
 Critério de saída:

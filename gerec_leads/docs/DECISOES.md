@@ -23,3 +23,5 @@ As decisões abaixo foram aprovadas na organização inicial do projeto. Mudanç
 | DEC-017 | Vercel hospeda o frontend, Supabase remoto hospeda dados e Auth, e Cloudfy hospeda n8n. | Composição alinhada ao SPEC e ao ambiente escolhido. | Aprovada |
 | DEC-018 | Cada etapa possui gate de qualidade. | Não há avanço sem testes, evidências e ausência de falhas críticas. | Aprovada |
 | DEC-019 | O MVP termina após aceite automatizado e piloto controlado. | Interface pronta isoladamente não comprova o núcleo operacional. | Aprovada |
+| DEC-020 | `.github/workflows/gerec-leads-ci.yml` é a única exceção à pasta do produto. | O GitHub Actions exige essa localização; o gatilho fica limitado a `gerec_leads/**` e toda lógica executada continua no workspace. | Aprovada |
+| DEC-021 | O workspace usa Node.js 24 LTS. | Mantém um runtime ativo e uniforme entre máquinas locais e CI, declarado em `.nvmrc` e `package.json`. | Aprovada |

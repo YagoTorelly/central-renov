@@ -14,7 +14,8 @@ Estas instruções valem para todo arquivo dentro de `gerec_leads/`.
 - O Gerenciador de Leads é um projeto novo e isolado dentro de `gerec_leads/`.
 - Não reutilize código, arquitetura, dados ou integrações das pastas legadas `backend/`, `frontend/` e `ingestao/` sem análise e autorização explícita.
 - Os materiais visuais legados da WTG podem ser consultados apenas como referência de identidade visual.
-- Todo código, migração, teste, workflow, documentação e configuração do novo sistema deve permanecer dentro de `gerec_leads/`.
+- Todo código, migração, teste, documentação e configuração do novo sistema deve permanecer dentro de `gerec_leads/`.
+- A única exceção estrutural aprovada é `.github/workflows/gerec-leads-ci.yml`, porque o GitHub Actions só descobre workflows nessa pasta da raiz. Esse arquivo deve reagir apenas a mudanças em `gerec_leads/**`; toda a lógica e configuração executada por ele permanece em `gerec_leads/`.
 
 ## Fluxo obrigatório antes de implementar
 
@@ -84,5 +85,6 @@ Não aplique todas as skills indiscriminadamente. A skill escolhida deve ter rel
 
 - Fonte de verdade: `SPEC_GERENCIADOR_DE_LEADS_WTG.md`
 - Trilha de entrega: `ROADMAP.md`
+- Plano executável da Etapa 1: `docs/superpowers/plans/2026-08-25-etapa-1-esqueleto-executavel.md`
 - Organização técnica: `docs/ARQUITETURA.md`
 - Decisões aprovadas: `docs/DECISOES.md`
