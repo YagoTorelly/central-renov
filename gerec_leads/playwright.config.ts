@@ -1,8 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
-delete process.env.NO_COLOR;
+import { withoutNoColor } from "./tooling/playwright/sanitize-environment.mjs";
 
-const webServerEnvironment = { ...process.env };
+const webServerEnvironment = withoutNoColor(process.env);
 
 export default defineConfig({
   testDir: "./tests/e2e",
