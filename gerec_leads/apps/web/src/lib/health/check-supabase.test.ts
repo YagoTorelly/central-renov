@@ -1,21 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  checkSupabaseHealth,
-  type HealthRequest,
-} from "./check-supabase";
+import { checkSupabaseHealth, type HealthRequest } from "./check-supabase";
 
 describe("checkSupabaseHealth", () => {
   it("informa conexão quando o Auth local responde", async () => {
-    const request = vi
-      .fn<HealthRequest>()
-      .mockResolvedValue(new Response(null, { status: 200 }));
+    const request = vi.fn<HealthRequest>().mockResolvedValue(new Response(null, { status: 200 }));
 
     await expect(
-      checkSupabaseHealth(
-        { url: "http://127.0.0.1:54321", publishableKey: "public-key" },
-        request,
-      ),
+      checkSupabaseHealth({ url: "http://127.0.0.1:54321", publishableKey: "public-key" }, request),
     ).resolves.toEqual({ status: "connected", message: "Supabase local conectado" });
 
     expect(request).toHaveBeenCalledWith(
@@ -40,15 +32,10 @@ describe("checkSupabaseHealth", () => {
   });
 
   it("degrada de forma segura quando o serviço está indisponível", async () => {
-    const request = vi
-      .fn<HealthRequest>()
-      .mockRejectedValue(new Error("connection refused"));
+    const request = vi.fn<HealthRequest>().mockRejectedValue(new Error("connection refused"));
 
     await expect(
-      checkSupabaseHealth(
-        { url: "http://127.0.0.1:54321", publishableKey: "public-key" },
-        request,
-      ),
+      checkSupabaseHealth({ url: "http://127.0.0.1:54321", publishableKey: "public-key" }, request),
     ).resolves.toEqual({
       status: "unavailable",
       message: "Supabase local indisponível",

@@ -3,10 +3,7 @@ export type SupabaseHealth = {
   message: string;
 };
 
-export type HealthRequest = (
-  input: string,
-  init?: RequestInit,
-) => Promise<Response>;
+export type HealthRequest = (input: string, init?: RequestInit) => Promise<Response>;
 
 type HealthConfig = {
   url: string | undefined;
@@ -28,13 +25,10 @@ export async function checkSupabaseHealth(
   }
 
   try {
-    const response = await request(
-      `${config.url.replace(/\/$/, "")}/auth/v1/health`,
-      {
-        cache: "no-store",
-        headers: { apikey: config.publishableKey },
-      },
-    );
+    const response = await request(`${config.url.replace(/\/$/, "")}/auth/v1/health`, {
+      cache: "no-store",
+      headers: { apikey: config.publishableKey },
+    });
 
     if (response.ok) {
       return { status: "connected", message: "Supabase local conectado" };

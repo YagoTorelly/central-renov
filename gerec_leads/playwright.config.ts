@@ -1,5 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
+delete process.env.NO_COLOR;
+
+const webServerEnvironment = { ...process.env };
+
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
@@ -21,6 +25,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "npm run dev",
+    env: webServerEnvironment,
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

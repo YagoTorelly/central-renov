@@ -11,8 +11,8 @@ export default async function Home() {
         <p className="foundation-kicker">WTG • ambiente de desenvolvimento</p>
         <h1 id="product-title">Gerenciador de Leads WTG</h1>
         <p>
-          Esqueleto local preparado. As regras comerciais começam somente após a
-          aprovação da próxima etapa.
+          Esqueleto local preparado. As regras comerciais começam somente após a aprovação da
+          próxima etapa.
         </p>
         <div className="health-line" data-status={health.status} role="status">
           <span aria-hidden="true" />
