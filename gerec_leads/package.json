@@ -2,7 +2,9 @@
   "name": "@wtg/gerenciador-de-leads",
   "version": "0.1.0",
   "private": true,
-  "workspaces": ["apps/*"],
+  "workspaces": [
+    "apps/*"
+  ],
   "engines": {
     "node": ">=24 <25"
   },
@@ -11,6 +13,13 @@
     "build": "npm --workspace @wtg/web run build",
     "lint": "npm --workspace @wtg/web run lint",
     "typecheck": "npm --workspace @wtg/web run typecheck",
-    "test:structure": "node --test tooling/tests/workspace-structure.test.mjs"
+    "test:structure": "node --test tooling/tests/workspace-structure.test.mjs",
+    "test": "npm --workspace @wtg/web run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run test:structure && npm run build"
+  },
+  "devDependencies": {
+    "prettier": "3.9.6"
   }
 }

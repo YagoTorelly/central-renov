@@ -17,12 +17,8 @@ test("o workspace mantém a estrutura aprovada", () => {
     assert.equal(existsSync(resolve(root, relativePath)), true, relativePath);
   }
 
-  const workspace = JSON.parse(
-    readFileSync(resolve(root, "package.json"), "utf8"),
-  );
-  const web = JSON.parse(
-    readFileSync(resolve(root, "apps/web/package.json"), "utf8"),
-  );
+  const workspace = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
+  const web = JSON.parse(readFileSync(resolve(root, "apps/web/package.json"), "utf8"));
 
   assert.equal(workspace.private, true);
   assert.deepEqual(workspace.workspaces, ["apps/*"]);
