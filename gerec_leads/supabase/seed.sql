@@ -1,0 +1,1 @@
+-- Dados sintéticos de domínio serão adicionados na Etapa 2, após o modelo aprovado.
