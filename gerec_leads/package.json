@@ -14,7 +14,7 @@
     "lint": "npm --workspace @wtg/web run lint",
     "typecheck": "npm --workspace @wtg/web run typecheck",
     "supabase:init": "supabase init",
-    "supabase:start": "supabase start",
+    "supabase:start": "supabase start -x vector",
     "supabase:stop": "supabase stop",
     "supabase:status": "supabase status",
     "supabase:reset": "supabase db reset",
