@@ -349,3 +349,98 @@ td small {
   color: var(--red);
   font-size: 12px;
 }
+.page-heading {
+  margin: 30px 0 24px;
+}
+.page-heading h1 {
+  margin: 0;
+  font-size: 32px;
+  letter-spacing: -0.04em;
+}
+.page-heading p:last-child {
+  color: var(--muted);
+}
+.queue-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+.queue-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+}
+.queue-position {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--green);
+}
+.queue-card h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.queue-card p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.queue-state {
+  margin-left: auto;
+  padding: 5px 8px;
+  border-radius: 5px;
+  background: var(--mint);
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 800;
+}
+.history-card {
+  margin-top: 10px;
+}
+.history-card .pill {
+  background: #eef3f0;
+  color: var(--green);
+}
+.users-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 18px;
+}
+.add-user-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+}
+.add-user-card h2 {
+  margin: 0 0 8px;
+}
+.add-user-card input {
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.add-user-card button,
+.table-action {
+  padding: 10px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--green);
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+.add-user-card small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.table-action {
+  padding: 6px 9px;
+  font-size: 11px;
+}

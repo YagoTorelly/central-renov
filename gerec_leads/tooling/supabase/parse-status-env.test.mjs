@@ -15,6 +15,7 @@ test("usa PUBLISHABLE_KEY como chave pública", () => {
   assert.deepEqual(parsed, {
     NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321",
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "publishable-local-key",
+    SUPABASE_SERVICE_ROLE_KEY: "never-expose-this",
   });
 });
 
@@ -49,7 +50,7 @@ test("recusa configuração pública incompleta", () => {
   );
 });
 
-test("renderiza somente URL e chave pública", () => {
+test("renderiza URL pública e chave administrativa apenas para o servidor", () => {
   const parsed = parseSupabaseStatusEnv(
     [
       'API_URL="http://127.0.0.1:54321"',
@@ -63,6 +64,7 @@ test("renderiza somente URL e chave pública", () => {
     [
       "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321",
       "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=publishable-local-key",
+      "SUPABASE_SERVICE_ROLE_KEY=never-expose-this",
       "",
     ].join("\n"),
   );

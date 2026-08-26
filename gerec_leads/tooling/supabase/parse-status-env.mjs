@@ -21,6 +21,7 @@ export function parseSupabaseStatusEnv(source) {
   return {
     NEXT_PUBLIC_SUPABASE_URL: values.API_URL,
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: publicKey,
+    SUPABASE_SERVICE_ROLE_KEY: values.SERVICE_ROLE_KEY ?? "",
   };
 }
 

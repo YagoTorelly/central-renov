@@ -1,15 +1,13 @@
-import type { DashboardData, SessionProfile } from "./types";
+import type { DashboardData, DashboardLead, SessionProfile } from "./types";
 
-const nowIso = new Date().toISOString();
-
-const demoLeads: DashboardData["leads"] = [
+const demoLeads: DashboardLead[] = [
   {
     id: 101,
     contactAnswer: "Possui CNPJ ativo",
     contactName: "Marina Costa",
     phone: "(11) 98888-0101",
     email: "marina@meta.com",
-    companyName: "Meta Servicos Integrados",
+    companyName: "Meta Serviços Integrados",
     campaignName: "WTG - Planilha Mock",
     sellerName: "Renato",
     assignmentStatus: "assigned",
@@ -66,7 +64,7 @@ const demoLeads: DashboardData["leads"] = [
     contactName: "Lucas Pereira",
     phone: "(11) 95555-0404",
     email: "lucas@exemplo.com",
-    companyName: "Pereira Comercio",
+    companyName: "Pereira Comércio",
     campaignName: "WTG - Planilha Mock",
     sellerName: "Nelma",
     assignmentStatus: "assigned",
@@ -88,15 +86,30 @@ export function getDemoDashboardData(profile: SessionProfile): DashboardData {
       : demoLeads.filter(
           (lead) => lead.sellerName.toLowerCase() === profile.fullName.toLowerCase(),
         );
-
+  const names = [...new Set(leads.map((lead) => lead.sellerName))];
   return {
     leads,
-    generatedAt: nowIso,
+    queue: names.map((sellerName, index) => ({
+      sellerId: `demo-${index}`,
+      sellerName,
+      email: "",
+      position: index + 1,
+      isPaused: false,
+      skipBalance: 0,
+      activeLeads: leads.filter((lead) => lead.sellerName === sellerName).length,
+      overdueLeads: leads.filter(
+        (lead) => lead.sellerName === sellerName && lead.stage === "overdue",
+      ).length,
+      nextDueAt: leads.find((lead) => lead.sellerName === sellerName)?.feedbackDueAt ?? null,
+    })),
+    users: [],
+    history: [],
+    generatedAt: new Date().toISOString(),
     source: "demo",
-    warning: "Dados demonstrativos exibidos porque o Supabase local nao respondeu.",
+    warning: "Dados demonstrativos exibidos porque o Supabase local não respondeu.",
     summary: {
       total: leads.length,
-      queued: leads.filter((lead) => lead.assignmentStatus === "assigned").length,
+      queued: leads.length,
       overdue: leads.filter((lead) => lead.stage === "overdue").length,
       pending: leads.filter((lead) => lead.qualificationStatus === "pending").length,
       won: leads.filter((lead) => lead.conversionStatus === "won").length,

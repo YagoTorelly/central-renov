@@ -7,6 +7,7 @@ import { readLocalSupabaseRuntime } from "./local-runtime.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const PASSWORD_ALPHABET = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%^&*";
+export const LOCAL_ADMIN_PASSWORD = "Wtg@2026!Admin";
 
 export const LOCAL_USERS = [
   { email: "admin@gerec.local", fullName: "Administrador WTG", role: "admin", position: null },
@@ -23,6 +24,10 @@ export function generatePassword(length = 20) {
     (value) => PASSWORD_ALPHABET[value % PASSWORD_ALPHABET.length],
   );
   return [...required, ...rest].sort(() => randomBytes(1)[0] - 128).join("");
+}
+
+export function resolveUserPassword(user) {
+  return user.role === "admin" ? LOCAL_ADMIN_PASSWORD : generatePassword();
 }
 
 async function adminRequest(runtime, path, options = {}) {
@@ -69,7 +74,7 @@ export async function bootstrapLocalUsers({
   const runtime = readLocalSupabaseRuntime({ cwd });
   const credentials = [];
   for (const user of LOCAL_USERS) {
-    const password = generatePassword();
+    const password = resolveUserPassword(user);
     const authUser = await ensureAuthUser(runtime, user, password);
     const profile = {
       user_id: authUser.id,

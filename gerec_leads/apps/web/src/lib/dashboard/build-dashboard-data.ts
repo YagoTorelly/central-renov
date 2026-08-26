@@ -1,5 +1,5 @@
 import { getSlaState } from "./format";
-import type { DashboardData, DashboardLead } from "./types";
+import type { DashboardData, DashboardLead, HistoryEvent } from "./types";
 
 export type RawLead = {
   id: number;
@@ -18,6 +18,8 @@ export type RawProfile = {
   user_id: string;
   full_name: string;
   email: string;
+  role?: "admin" | "seller";
+  is_active?: boolean;
 };
 
 export type RawCompany = {
@@ -40,11 +42,49 @@ export type RawSourceRecord = {
 };
 
 export type RawAttempt = {
+  id: number;
   lead_id: number;
+  seller_id: string;
+  comment: string;
+  created_at: string;
+};
+
+export type RawFeedback = {
+  id: number;
+  lead_id: number;
+  seller_id: string;
+  comment: string;
+  created_at: string;
+};
+
+export type RawQualificationEvent = {
+  id: number;
+  lead_id: number;
+  actor_id: string;
+  outcome: string;
+  reason: string | null;
+  comment: string;
+  created_at: string;
+};
+
+export type RawQueueEntry = {
+  seller_id: string;
+  position: number;
+  is_paused: boolean;
+};
+
+export type RawSkipBalance = {
+  seller_id: string;
+  balance: number;
 };
 
 export type RawSale = {
+  id: number;
   lead_id: number;
+  credited_seller_id: string;
+  comment: string | null;
+  won_at: string;
+  reversed_at: string | null;
 };
 
 export type BuildDashboardInput = {
@@ -53,7 +93,11 @@ export type BuildDashboardInput = {
   companies: RawCompany[];
   campaigns: RawCampaign[];
   sourceRecords: RawSourceRecord[];
+  queueEntries?: RawQueueEntry[];
+  skipBalances?: RawSkipBalance[];
   attempts: RawAttempt[];
+  feedbacks?: RawFeedback[];
+  qualificationEvents?: RawQualificationEvent[];
   sales: RawSale[];
   now?: Date;
   source: DashboardData["source"];
@@ -64,13 +108,36 @@ function indexById<T extends { id: number }>(records: T[]) {
   return new Map(records.map((record) => [record.id, record]));
 }
 
+function buildHistoryLabel(eventType: HistoryEvent["eventType"], outcome?: string) {
+  if (eventType === "attempt") return "Tentativa de contato";
+  if (eventType === "feedback") return "Feedback registrado";
+  if (eventType === "sale") return "Negócio ganho";
+
+  switch (outcome) {
+    case "qualified_follow_up":
+      return "Lead qualificado";
+    case "qualified_closed_no_conversion":
+      return "Encerrado sem conversão";
+    case "disqualified":
+      return "Lead desqualificado";
+    case "won":
+      return "Venda confirmada";
+    default:
+      return "Atualização de qualificação";
+  }
+}
+
 export function buildDashboardData({
   leads,
   profiles,
   companies,
   campaigns,
   sourceRecords,
+  queueEntries = [],
+  skipBalances = [],
   attempts,
+  feedbacks = [],
+  qualificationEvents = [],
   sales,
   now = new Date(),
   source,
@@ -86,7 +153,9 @@ export function buildDashboardData({
     index.set(attempt.lead_id, (index.get(attempt.lead_id) ?? 0) + 1);
     return index;
   }, new Map());
-  const wonLeadIds = new Set(sales.map((sale) => sale.lead_id));
+  const activeSaleLeadIds = new Set(
+    sales.filter((sale) => !sale.reversed_at).map((sale) => sale.lead_id),
+  );
 
   const dashboardLeads: DashboardLead[] = leads.map((lead) => {
     const sourceRecord = sourceByLeadId.get(lead.id);
@@ -106,7 +175,7 @@ export function buildDashboardData({
       sellerName: seller?.full_name ?? "Sem vendedor",
       assignmentStatus: lead.assignment_status,
       qualificationStatus: lead.qualification_status,
-      conversionStatus: wonLeadIds.has(lead.id) ? "won" : lead.conversion_status,
+      conversionStatus: activeSaleLeadIds.has(lead.id) ? "won" : lead.conversion_status,
       sourceEnteredAt: lead.source_entered_at,
       feedbackDueAt: lead.feedback_due_at,
       lastActivityAt: lead.updated_at,
@@ -116,8 +185,128 @@ export function buildDashboardData({
     };
   });
 
+  const leadById = new Map(dashboardLeads.map((lead) => [lead.id, lead]));
+  const leadOwnerBySellerId = dashboardLeads.reduce<Map<string, DashboardLead[]>>((index, lead) => {
+    const sellerId =
+      leads.find((candidate) => candidate.id === lead.id)?.current_assignee_id ?? null;
+    if (!sellerId) return index;
+    const bucket = index.get(sellerId) ?? [];
+    bucket.push(lead);
+    index.set(sellerId, bucket);
+    return index;
+  }, new Map());
+  const queuePositionBySellerId = new Map(
+    queueEntries.map((entry) => [entry.seller_id, entry.position]),
+  );
+  const skipBalanceBySellerId = new Map(
+    skipBalances.map((entry) => [entry.seller_id, entry.balance]),
+  );
+
+  const queue = queueEntries
+    .map((entry) => {
+      const profile = profileById.get(entry.seller_id);
+      const sellerLeads = leadOwnerBySellerId.get(entry.seller_id) ?? [];
+      return {
+        sellerId: entry.seller_id,
+        sellerName: profile?.full_name ?? "Vendedor sem nome",
+        email: profile?.email ?? "sem-email@local",
+        position: entry.position,
+        isPaused: entry.is_paused,
+        skipBalance: skipBalanceBySellerId.get(entry.seller_id) ?? 0,
+        activeLeads: sellerLeads.length,
+        overdueLeads: sellerLeads.filter((lead) => lead.stage === "overdue").length,
+        nextDueAt:
+          sellerLeads
+            .map((lead) => lead.feedbackDueAt)
+            .filter((value): value is string => Boolean(value))
+            .sort()[0] ?? null,
+      };
+    })
+    .sort((left, right) => left.position - right.position);
+
+  const history = [
+    ...attempts.map((attempt) => ({
+      id: `attempt-${attempt.id}`,
+      leadId: attempt.lead_id,
+      eventType: "attempt" as const,
+      sellerId: attempt.seller_id,
+      happenedAt: attempt.created_at,
+      comment: attempt.comment,
+      outcome: undefined,
+    })),
+    ...feedbacks.map((feedback) => ({
+      id: `feedback-${feedback.id}`,
+      leadId: feedback.lead_id,
+      eventType: "feedback" as const,
+      sellerId: feedback.seller_id,
+      happenedAt: feedback.created_at,
+      comment: feedback.comment,
+      outcome: undefined,
+    })),
+    ...qualificationEvents.map((event) => ({
+      id: `qualification-${event.id}`,
+      leadId: event.lead_id,
+      eventType: "qualification" as const,
+      sellerId: event.actor_id,
+      happenedAt: event.created_at,
+      comment: event.comment,
+      outcome: event.outcome,
+    })),
+    ...sales
+      .filter((sale) => !sale.reversed_at)
+      .map((sale) => ({
+        id: `sale-${sale.id}`,
+        leadId: sale.lead_id,
+        eventType: "sale" as const,
+        sellerId: sale.credited_seller_id,
+        happenedAt: sale.won_at,
+        comment: sale.comment ?? "Negócio ganho confirmado.",
+        outcome: "won",
+      })),
+  ]
+    .map((event) => {
+      const lead = leadById.get(event.leadId);
+      const seller = profileById.get(event.sellerId);
+      return {
+        id: event.id,
+        leadId: event.leadId,
+        eventType: event.eventType,
+        sellerName: seller?.full_name ?? "Sem responsável",
+        contactName: lead?.contactName ?? "Lead sem nome",
+        companyName: lead?.companyName ?? "Empresa pendente",
+        happenedAt: event.happenedAt,
+        comment: event.comment,
+        label: buildHistoryLabel(event.eventType, event.outcome),
+      };
+    })
+    .sort((left, right) => right.happenedAt.localeCompare(left.happenedAt));
+
+  const users = profiles
+    .map((profile) => {
+      const sellerLeads = leadOwnerBySellerId.get(profile.user_id) ?? [];
+      return {
+        userId: profile.user_id,
+        fullName: profile.full_name,
+        email: profile.email,
+        role: profile.role ?? "seller",
+        isActive: profile.is_active ?? true,
+        isPaused: queue.find((entry) => entry.sellerId === profile.user_id)?.isPaused ?? false,
+        queuePosition: queuePositionBySellerId.get(profile.user_id) ?? null,
+        skipBalance: skipBalanceBySellerId.get(profile.user_id) ?? 0,
+        activeLeads: sellerLeads.length,
+        overdueLeads: sellerLeads.filter((lead) => lead.stage === "overdue").length,
+      };
+    })
+    .sort((left, right) => {
+      if (left.role !== right.role) return left.role === "admin" ? -1 : 1;
+      return left.fullName.localeCompare(right.fullName);
+    });
+
   return {
     leads: dashboardLeads,
+    queue,
+    history,
+    users,
     generatedAt: now.toISOString(),
     source,
     warning,

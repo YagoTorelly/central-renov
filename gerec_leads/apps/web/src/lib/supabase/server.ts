@@ -11,9 +11,7 @@ export type ServerSupabaseClient = {
     getUser: () => Promise<{ id: string; email?: string } | null>;
   };
   profiles: {
-    getByUserId: (
-      userId: string,
-    ) => Promise<{
+    getByUserId: (userId: string) => Promise<{
       user_id: string;
       full_name: string;
       email: string;

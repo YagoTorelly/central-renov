@@ -39,9 +39,51 @@ export type DashboardSummary = {
   attempts: number;
 };
 
+export type SellerQueueItem = {
+  sellerId: string;
+  sellerName: string;
+  email: string;
+  position: number;
+  isPaused: boolean;
+  skipBalance: number;
+  activeLeads: number;
+  overdueLeads: number;
+  nextDueAt: string | null;
+};
+
+export type HistoryEventType = "attempt" | "feedback" | "qualification" | "sale";
+
+export type HistoryEvent = {
+  id: string;
+  leadId: number;
+  eventType: HistoryEventType;
+  sellerName: string;
+  contactName: string;
+  companyName: string;
+  happenedAt: string;
+  comment: string;
+  label: string;
+};
+
+export type UserRecord = {
+  userId: string;
+  fullName: string;
+  email: string;
+  role: UserRole;
+  isActive: boolean;
+  isPaused: boolean;
+  queuePosition: number | null;
+  skipBalance: number;
+  activeLeads: number;
+  overdueLeads: number;
+};
+
 export type DashboardData = {
   leads: DashboardLead[];
   summary: DashboardSummary;
+  queue: SellerQueueItem[];
+  history: HistoryEvent[];
+  users: UserRecord[];
   generatedAt: string;
   source: "supabase" | "demo";
   warning?: string;
