@@ -9,13 +9,18 @@ function Metric({ label, value, tone = "" }: { label: string; value: number; ton
     </div>
   );
 }
-function LeadTable({ data }: { data: DashboardData }) {
+
+function Notice({ data, fallback }: { data: DashboardData; fallback: string }) {
+  return <div className="notice">{data.warning ?? fallback}</div>;
+}
+
+export function LeadOperationsTable({ data, title }: { data: DashboardData; title: string }) {
   return (
-    <section className="table-card" id="fila">
+    <section className="table-card">
       <div className="table-head">
         <div>
-          <p className="eyebrow">Carteira operacional</p>
-          <h2>Leads em acompanhamento</h2>
+          <p className="eyebrow">Operação comercial</p>
+          <h2>{title}</h2>
         </div>
         <span className={`data-badge ${data.source}`}>
           {data.source === "supabase" ? "Dados ao vivo" : "Modo demonstração"}
@@ -56,7 +61,7 @@ function LeadTable({ data }: { data: DashboardData }) {
                         ? formatDateTime(lead.feedbackDueAt)
                         : "Sem prazo"}
                 </span>
-                <small>{lead.feedbackDueAt && formatDateTime(lead.feedbackDueAt)}</small>
+                <small>{lead.feedbackDueAt ? formatDateTime(lead.feedbackDueAt) : "Sem SLA"}</small>
               </td>
               <td>
                 <span className={`pill ${lead.conversionStatus}`}>
@@ -64,7 +69,9 @@ function LeadTable({ data }: { data: DashboardData }) {
                     ? "Ganho"
                     : lead.qualificationStatus === "disqualified"
                       ? "Desqualificado"
-                      : "Em andamento"}
+                      : lead.qualificationStatus === "qualified"
+                        ? "Qualificado"
+                        : "Em andamento"}
                 </span>
               </td>
               <td>{lead.attemptsCount}/5</td>
@@ -72,18 +79,102 @@ function LeadTable({ data }: { data: DashboardData }) {
           ))}
         </tbody>
       </table>
-      {data.leads.length === 0 && (
+      {data.leads.length === 0 ? (
         <div className="empty">Nenhum lead disponível para este perfil.</div>
-      )}
+      ) : null}
     </section>
   );
 }
-export function AdminDashboard({ data }: { data: DashboardData }) {
+
+export function QueuePanel({ data, profile }: { data: DashboardData; profile: SessionProfile }) {
+  return (
+    <section className="panel-card">
+      <div className="panel-head">
+        <div>
+          <p className="eyebrow">Fila global</p>
+          <h2>{profile.role === "admin" ? "Estado dos vendedores" : "Minha posição na fila"}</h2>
+        </div>
+        <a className="inline-link" href="/fila">
+          Abrir fila
+        </a>
+      </div>
+      <div className="queue-grid">
+        {data.queue.map((entry) => (
+          <article className="queue-item" key={entry.sellerId}>
+            <div className="queue-item-head">
+              <span className="queue-position">#{entry.position}</span>
+              <span className={`queue-state ${entry.isPaused ? "paused" : "ready"}`}>
+                {entry.isPaused ? "Pausado" : "Elegível"}
+              </span>
+            </div>
+            <strong>{entry.sellerName}</strong>
+            <small>{entry.email}</small>
+            <dl>
+              <div>
+                <dt>Leads ativos</dt>
+                <dd>{entry.activeLeads}</dd>
+              </div>
+              <div>
+                <dt>Atrasados</dt>
+                <dd>{entry.overdueLeads}</dd>
+              </div>
+              <div>
+                <dt>Créditos</dt>
+                <dd>{entry.skipBalance}</dd>
+              </div>
+            </dl>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function HistoryPanel({ data }: { data: DashboardData }) {
+  return (
+    <section className="panel-card">
+      <div className="panel-head">
+        <div>
+          <p className="eyebrow">Atividade recente</p>
+          <h2>Últimos movimentos</h2>
+        </div>
+        <a className="inline-link" href="/historico">
+          Abrir histórico
+        </a>
+      </div>
+      <div className="history-list">
+        {data.history.slice(0, 4).map((event) => (
+          <article className="history-item" key={event.id}>
+            <div>
+              <strong>{event.label}</strong>
+              <small>
+                {event.contactName} · {event.companyName}
+              </small>
+            </div>
+            <div className="history-meta">
+              <span>{event.sellerName}</span>
+              <small>{formatDateTime(event.happenedAt)}</small>
+            </div>
+          </article>
+        ))}
+      </div>
+      {data.history.length === 0 ? (
+        <div className="empty compact">Nenhuma atividade registrada ainda.</div>
+      ) : null}
+    </section>
+  );
+}
+
+export function AdminDashboard({
+  data,
+  profile,
+}: {
+  data: DashboardData;
+  profile: SessionProfile;
+}) {
   return (
     <>
-      <div className="notice">
-        {data.warning ?? "Atualizado agora · horários em America/Sao_Paulo"}
-      </div>
+      <Notice data={data} fallback="Ambiente local sincronizado. Horários em America/Sao_Paulo." />
       <section className="metrics">
         <Metric label="Total de leads" value={data.summary.total} />
         <Metric label="Em distribuição" value={data.summary.queued} />
@@ -91,10 +182,15 @@ export function AdminDashboard({ data }: { data: DashboardData }) {
         <Metric label="Atrasados" value={data.summary.overdue} tone="red" />
         <Metric label="Negócios ganhos" value={data.summary.won} tone="green" />
       </section>
-      <LeadTable data={data} />
+      <div className="panel-stack">
+        <QueuePanel data={data} profile={profile} />
+        <HistoryPanel data={data} />
+      </div>
+      <LeadOperationsTable data={data} title="Leads em acompanhamento" />
     </>
   );
 }
+
 export function SellerDashboard({
   data,
   profile,
@@ -104,17 +200,22 @@ export function SellerDashboard({
 }) {
   return (
     <>
-      <div className="notice">
-        Carteira de {profile.fullName} ·{" "}
-        {data.warning ?? "Atualizado agora · horários em America/Sao_Paulo"}
-      </div>
+      <Notice
+        data={data}
+        fallback={`Carteira de ${profile.fullName} · Horários em America/Sao_Paulo.`}
+      />
       <section className="metrics">
         <Metric label="Minha carteira" value={data.summary.total} />
         <Metric label="Feedbacks hoje" value={data.summary.feedbacksToday} tone="amber" />
         <Metric label="Atrasados" value={data.summary.overdue} tone="red" />
         <Metric label="Tentativas" value={data.summary.attempts} />
+        <Metric label="Ganhos" value={data.summary.won} tone="green" />
       </section>
-      <LeadTable data={data} />
+      <div className="panel-stack">
+        <QueuePanel data={data} profile={profile} />
+        <HistoryPanel data={data} />
+      </div>
+      <LeadOperationsTable data={data} title="Meus leads em acompanhamento" />
     </>
   );
 }
