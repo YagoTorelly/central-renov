@@ -19,6 +19,8 @@
     "supabase:status": "supabase status",
     "supabase:reset": "supabase db reset",
     "env:local": "node tooling/supabase/write-web-env.mjs",
+    "test:db": "supabase test db --local",
+    "supabase:bootstrap-users": "node tooling/supabase/bootstrap-local-users.mjs",
     "test:ci-contract": "node --test tooling/tests/ci-contract.test.mjs",
     "test:supabase-tooling": "node --test tooling/supabase/*.test.mjs",
     "test:structure": "node --test tooling/tests/workspace-structure.test.mjs",
