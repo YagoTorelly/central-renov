@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 
@@ -17,6 +17,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Gerenciador de Leads WTG",
   description: "Fundação local do Gerenciador de Leads WTG",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#f3f5f4",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

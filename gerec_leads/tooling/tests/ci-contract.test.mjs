@@ -13,10 +13,14 @@ test("o CI permanece limitado ao Gerenciador de Leads", () => {
 
   assert.deepEqual(workflow.on.push.paths, ["gerec_leads/**"]);
   assert.deepEqual(workflow.on.pull_request.paths, ["gerec_leads/**"]);
+  assert.deepEqual(workflow.permissions, { contents: "read" });
   assert.equal(workflow.defaults.run["working-directory"], "gerec_leads");
 
   const steps = workflow.jobs.quality.steps;
-  assert.equal(steps[0].uses, "actions/checkout@v7");
+  assert.deepEqual(
+    steps.flatMap((step) => (step.uses ? [step.uses] : [])),
+    ["actions/checkout@v7", "actions/setup-node@v7"],
+  );
 
   const setupNode = steps.find((step) => step.uses === "actions/setup-node@v7");
   assert.ok(setupNode);
@@ -40,6 +44,5 @@ test("o CI permanece limitado ao Gerenciador de Leads", () => {
   assert.equal(stopSupabase?.if, "always()");
 
   const serializedWorkflow = JSON.stringify(workflow);
-  assert.equal(serializedWorkflow.includes("service_role"), false);
-  assert.equal(serializedWorkflow.includes("SERVICE_ROLE_KEY"), false);
+  assert.equal(serializedWorkflow.includes("${{ secrets."), false);
 });

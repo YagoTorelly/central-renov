@@ -9,6 +9,7 @@
 - `npm run format:check`: aprovado
 - `npm run lint`: aprovado
 - `npm run typecheck`: aprovado
+- `npm run check`: aprovado
 - testes unitários e estruturais: aprovados
 - tooling Playwright, contrato do CI e build de produção: aprovados por `npm run check`
 - Playwright/Chromium com Supabase local: aprovado

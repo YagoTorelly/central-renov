@@ -1,7 +1,7 @@
 # Design de organização e roadmap do Gerenciador de Leads WTG
 
 - **Data:** 25 de agosto de 2026
-- **Estado:** design aprovado em conversa; documentação aguardando revisão final
+- **Estado:** design aprovado; Etapa 1 concluída e Etapa 2 aguardando planejamento
 - **Escopo:** organização do projeto e trilha até a entrega do MVP
 
 ## Contexto

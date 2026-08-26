@@ -2,7 +2,7 @@
 
 ## Estado
 
-Arquitetura aprovada para orientar o planejamento. A implementação ainda não foi iniciada.
+Arquitetura aprovada. A Etapa 1 está concluída, e a Etapa 2 aguarda planejamento.
 
 ## Princípio central
 
