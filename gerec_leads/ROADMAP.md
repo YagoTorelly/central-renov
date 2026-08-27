@@ -161,7 +161,7 @@ Entregáveis:
 - posição e saldo individuais na fila;
 - detalhe, contato, feedback e tentativa;
 - qualificação, desqualificação, encerramento e ganho;
-- experiência responsiva para desktop, tablet e celular.
+- experiência responsiva para desktop
 
 Critério de saída:
 
