@@ -9,6 +9,7 @@ export type RawLead = {
   assignment_status: string;
   qualification_status: string;
   conversion_status: string;
+  commercial_status?: "undefined" | "negotiation" | "won" | "disqualified";
   source_entered_at: string;
   feedback_due_at: string | null;
   updated_at: string;
@@ -77,6 +78,7 @@ export type RawSkipBalance = {
   seller_id: string;
   balance: number;
 };
+export type RawQueueState = { next_seller_id: string };
 
 export type RawSale = {
   id: number;
@@ -95,6 +97,7 @@ export type BuildDashboardInput = {
   sourceRecords: RawSourceRecord[];
   queueEntries?: RawQueueEntry[];
   skipBalances?: RawSkipBalance[];
+  queueState?: RawQueueState | null;
   attempts: RawAttempt[];
   feedbacks?: RawFeedback[];
   qualificationEvents?: RawQualificationEvent[];
@@ -135,6 +138,7 @@ export function buildDashboardData({
   sourceRecords,
   queueEntries = [],
   skipBalances = [],
+  queueState = null,
   attempts,
   feedbacks = [],
   qualificationEvents = [],
@@ -176,6 +180,7 @@ export function buildDashboardData({
       assignmentStatus: lead.assignment_status,
       qualificationStatus: lead.qualification_status,
       conversionStatus: activeSaleLeadIds.has(lead.id) ? "won" : lead.conversion_status,
+      commercialStatus: lead.commercial_status ?? (activeSaleLeadIds.has(lead.id) ? "won" : "undefined"),
       sourceEnteredAt: lead.source_entered_at,
       feedbackDueAt: lead.feedback_due_at,
       lastActivityAt: lead.updated_at,
@@ -202,16 +207,27 @@ export function buildDashboardData({
     skipBalances.map((entry) => [entry.seller_id, entry.balance]),
   );
 
-  const queue = queueEntries
+  const orderedQueue = [...queueEntries].sort((left, right) => left.position - right.position);
+  const cursorIndex = queueState?.next_seller_id
+    ? orderedQueue.findIndex((entry) => entry.seller_id === queueState.next_seller_id)
+    : 0;
+  const rotatedQueue = cursorIndex > 0
+    ? [...orderedQueue.slice(cursorIndex), ...orderedQueue.slice(0, cursorIndex)]
+    : orderedQueue;
+  const queue = rotatedQueue
     .map((entry) => {
       const profile = profileById.get(entry.seller_id);
       const sellerLeads = leadOwnerBySellerId.get(entry.seller_id) ?? [];
+      const blockedBySla = sellerLeads.some((lead) => lead.isBlockedBySla);
       return {
         sellerId: entry.seller_id,
         sellerName: profile?.full_name ?? "Vendedor sem nome",
         email: profile?.email ?? "sem-email@local",
-        position: entry.position,
-        isPaused: entry.is_paused,
+        position: rotatedQueue.indexOf(entry) + 1,
+        // Pausa efetiva combina a pausa manual com o bloqueio automático por SLA.
+        isPaused: entry.is_paused || blockedBySla,
+        blockedBySla,
+        isEligible: !entry.is_paused && !blockedBySla,
         skipBalance: skipBalanceBySellerId.get(entry.seller_id) ?? 0,
         activeLeads: sellerLeads.length,
         overdueLeads: sellerLeads.filter((lead) => lead.stage === "overdue").length,

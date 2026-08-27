@@ -17,14 +17,7 @@ export function AppShell({
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand">
-          <span className="brand-mark">W</span>
-          <span>
-            WTG
-            <br />
-            <small>LEADS OPS</small>
-          </span>
-        </div>
+        <div className="brand"><span className="brand-logo"><img src="/logo-wtg.png" alt="WTG Corretora de Seguros e Benefícios" /></span></div>
         <nav>
           <a className={activePath === "/dashboard" ? "nav-active" : ""} href="/dashboard">
             Visão geral

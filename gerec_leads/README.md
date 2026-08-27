@@ -16,6 +16,7 @@ npm ci
 npm run test:e2e:install
 npm run supabase:start
 npm run env:local
+npm run supabase:bootstrap-users
 npm run dev
 ```
 
@@ -24,8 +25,10 @@ Acesse `http://127.0.0.1:3000` e confirme “Supabase local conectado”.
 ## Verificação
 
 ```powershell
-npm run check
-npm run test:e2e
+npm run typecheck
+npm run test
+npm run test:supabase-tooling
+npm run build
 ```
 
 ## Encerramento
@@ -34,4 +37,6 @@ npm run test:e2e
 npm run supabase:stop
 ```
 
-`.env.local` é gerado apenas com URL e chave pública locais e nunca deve ser versionado.
+`apps/web/.env.local` é gerado com URL pública, chave pública e a `SUPABASE_SERVICE_ROLE_KEY` apenas para uso server-side. O arquivo nunca deve ser versionado.
+
+O bootstrap local reconcilia os cinco usuários, fixa a senha do admin em `Wtg@2026!Admin`, gera senhas aleatórias para os vendedores em `supabase/.temp/local-users.json` e popula campanhas, fila, histórico e leads demonstrativos no Supabase local.

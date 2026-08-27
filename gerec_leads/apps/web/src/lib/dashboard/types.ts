@@ -8,6 +8,7 @@ export type SessionProfile = {
 };
 
 export type LeadStage = "overdue" | "today" | "scheduled" | "none";
+export type CommercialStatus = "undefined" | "negotiation" | "won" | "disqualified";
 
 export type DashboardLead = {
   id: number;
@@ -21,6 +22,7 @@ export type DashboardLead = {
   assignmentStatus: string;
   qualificationStatus: string;
   conversionStatus: string;
+  commercialStatus: CommercialStatus;
   sourceEnteredAt: string;
   feedbackDueAt: string | null;
   lastActivityAt: string;
@@ -45,6 +47,8 @@ export type SellerQueueItem = {
   email: string;
   position: number;
   isPaused: boolean;
+  blockedBySla?: boolean;
+  isEligible?: boolean;
   skipBalance: number;
   activeLeads: number;
   overdueLeads: number;

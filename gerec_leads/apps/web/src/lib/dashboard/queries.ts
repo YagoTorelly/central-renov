@@ -8,6 +8,7 @@ import {
   type RawProfile,
   type RawQualificationEvent,
   type RawQueueEntry,
+  type RawQueueState,
   type RawSale,
   type RawSkipBalance,
   type RawSourceRecord,
@@ -28,7 +29,7 @@ export async function getDashboardData(
   try {
     const leads = await supabaseRestSelect<RawLead>(
       [
-        "leads?select=id,company_id,campaign_id,current_assignee_id,assignment_status,qualification_status,conversion_status,source_entered_at,feedback_due_at,updated_at",
+        "leads?select=id,company_id,campaign_id,current_assignee_id,assignment_status,qualification_status,conversion_status,commercial_status,source_entered_at,feedback_due_at,updated_at",
         "archived_at=is.null",
         "order=feedback_due_at.asc.nullslast",
         "limit=200",
@@ -45,6 +46,7 @@ export async function getDashboardData(
       campaigns,
       sourceRecords,
       queueEntries,
+      queueState,
       skipBalances,
       attempts,
       feedbacks,
@@ -86,6 +88,7 @@ export async function getDashboardData(
         "seller_queue?select=seller_id,position,is_paused&order=position.asc",
         accessToken,
       ),
+      supabaseRestSelect<RawQueueState>("queue_state?select=next_seller_id&singleton=eq.true&limit=1", accessToken).then((rows) => rows[0] ?? null),
       supabaseRestSelect<RawSkipBalance>(
         "seller_skip_balances?select=seller_id,balance",
         accessToken,
@@ -119,6 +122,7 @@ export async function getDashboardData(
       campaigns,
       sourceRecords,
       queueEntries,
+      queueState,
       skipBalances,
       attempts,
       feedbacks,

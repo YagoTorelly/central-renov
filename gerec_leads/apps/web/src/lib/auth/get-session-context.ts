@@ -16,7 +16,13 @@ export async function getSessionContext({
     onMissingSession();
     throw new Error("Sessão ausente");
   }
-  const user = await resolvedClient.auth.getUser();
+  let user: { id: string; email?: string } | null;
+  try {
+    user = await resolvedClient.auth.getUser();
+  } catch (error) {
+    onMissingSession();
+    throw error;
+  }
   if (!user) throw new Error("Sessão inválida");
   const profile = await resolvedClient.profiles.getByUserId(user.id);
   if (!profile) throw new Error("Perfil não encontrado");

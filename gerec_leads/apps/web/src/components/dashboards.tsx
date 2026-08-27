@@ -1,5 +1,9 @@
 import type { DashboardData, SessionProfile } from "../lib/dashboard/types";
 import { formatDateTime } from "../lib/dashboard/format";
+import { registerContactAttemptAction } from "../lib/operations/actions";
+import { simulateLeadsAction } from "../lib/admin/simulation-actions";
+import { ConfirmArchiveButton } from "./confirm-archive-button";
+import { AttemptModal } from "./attempt-modal";
 
 function Metric({ label, value, tone = "" }: { label: string; value: number; tone?: string }) {
   return (
@@ -14,7 +18,7 @@ function Notice({ data, fallback }: { data: DashboardData; fallback: string }) {
   return <div className="notice">{data.warning ?? fallback}</div>;
 }
 
-export function LeadOperationsTable({ data, title }: { data: DashboardData; title: string }) {
+export function LeadOperationsTable({ data, title, canRegister = false, canRemove = false }: { data: DashboardData; title: string; canRegister?: boolean; canRemove?: boolean }) {
   return (
     <section className="table-card">
       <div className="table-head">
@@ -35,6 +39,8 @@ export function LeadOperationsTable({ data, title }: { data: DashboardData; titl
             <th>Próximo prazo</th>
             <th>Status</th>
             <th>Tentativas</th>
+            {canRemove && !canRegister ? <th>Ação</th> : null}
+            {canRegister ? <th>Ação</th> : null}
           </tr>
         </thead>
         <tbody>
@@ -64,7 +70,10 @@ export function LeadOperationsTable({ data, title }: { data: DashboardData; titl
                 <small>{lead.feedbackDueAt ? formatDateTime(lead.feedbackDueAt) : "Sem SLA"}</small>
               </td>
               <td>
-                <span className={`pill ${lead.conversionStatus}`}>
+                <span className={`pill commercial-status ${lead.commercialStatus}`}>
+                  {lead.commercialStatus === "negotiation" ? "Negociação" : lead.commercialStatus === "won" ? "Ganho" : lead.commercialStatus === "disqualified" ? "Desqualificado" : "Indefinido"}
+                </span>
+                <span className={`pill commercial-status ${lead.commercialStatus}`}>
                   {lead.conversionStatus === "won"
                     ? "Ganho"
                     : lead.qualificationStatus === "disqualified"
@@ -74,7 +83,19 @@ export function LeadOperationsTable({ data, title }: { data: DashboardData; titl
                         : "Em andamento"}
                 </span>
               </td>
-              <td>{lead.attemptsCount}/5</td>
+              <td>{lead.attemptsCount}</td>
+              {canRegister || canRemove ? <td>
+                {canRemove ? <ConfirmArchiveButton leadId={lead.id} contactName={lead.contactName} /> : <AttemptModal leadId={lead.id} contactName={lead.contactName} attempts={lead.attemptsCount} status={lead.commercialStatus} />}
+                {canRemove ? null : lead.attemptsCount >= 5 ? (
+                  <span className="muted">Limite atingido</span>
+                ) : (
+                  <form className="attempt-form" action={registerContactAttemptAction}>
+                    <input type="hidden" name="leadId" value={lead.id} />
+                    <input name="comment" required minLength={6} placeholder="Comentário" aria-label={`Comentário para ${lead.contactName}`} />
+                    <button type="submit">Registrar</button>
+                  </form>
+                )}
+              </td> : null}
             </tr>
           ))}
         </tbody>
@@ -175,6 +196,11 @@ export function AdminDashboard({
   return (
     <>
       <Notice data={data} fallback="Ambiente local sincronizado. Horários em America/Sao_Paulo." />
+      <form className="simulation-bar" action={simulateLeadsAction}>
+        <div><strong>Simular entrada de leads</strong><small>Testa a distribuição pulando vendedores pausados ou bloqueados.</small></div>
+        <input name="quantity" type="number" min="1" max="10" defaultValue="1" aria-label="Quantidade de leads" />
+        <button type="submit">Simular leads</button>
+      </form>
       <section className="metrics">
         <Metric label="Total de leads" value={data.summary.total} />
         <Metric label="Em distribuição" value={data.summary.queued} />
@@ -186,7 +212,7 @@ export function AdminDashboard({
         <QueuePanel data={data} profile={profile} />
         <HistoryPanel data={data} />
       </div>
-      <LeadOperationsTable data={data} title="Leads em acompanhamento" />
+      <LeadOperationsTable data={data} title="Leads em acompanhamento" canRemove />
     </>
   );
 }
@@ -215,7 +241,7 @@ export function SellerDashboard({
         <QueuePanel data={data} profile={profile} />
         <HistoryPanel data={data} />
       </div>
-      <LeadOperationsTable data={data} title="Meus leads em acompanhamento" />
+      <LeadOperationsTable data={data} title="Meus leads em acompanhamento" canRegister />
     </>
   );
 }

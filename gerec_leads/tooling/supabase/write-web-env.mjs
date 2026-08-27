@@ -31,7 +31,7 @@ function writeWebEnv() {
     chmodSync(destination, 0o600);
   }
 
-  console.log("Ambiente web local criado somente com URL e chave pública.");
+  console.log("Ambiente web local criado com URL, chave publica e chave server-only.");
 }
 
 if (resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {

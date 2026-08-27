@@ -10,6 +10,7 @@ export function LoginForm() {
   return (
     <main className="login-shell">
       <form className="login-card" action={action}>
+        <span className="login-logo"><img src="/logo-wtg.png" alt="WTG Corretora" /></span>
         <p className="eyebrow">WTG · operação comercial</p>
         <h1>
           Gerenciador
