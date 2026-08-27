@@ -568,3 +568,344 @@ O plano deve separar identidade, backend, endpoints, navbar, contador, ações, 
 Cada tarefa deve possuir arquivos explícitos.
 Cada tarefa deve possuir testes.
 Cada tarefa deve possuir critérios verificáveis.
+
+## 41. Integração com a planilha Google Sheets
+
+A planilha oficial será a origem de entrada dos leads.
+
+O sistema terá acesso somente de leitura à planilha.
+
+O sistema nunca escreverá, moverá, excluirá ou reorganizará células.
+
+Identificador da planilha configurada:
+
+```text
+1HRCb1ciy_i4-3jEbiOd7xsCy-XqZp2fzY6kbshbf8qM
+```
+
+A aba inicial será a aba correspondente ao `gid=0`.
+
+O nome da aba deverá permanecer configurável por ambiente.
+
+O intervalo lido deverá incluir todas as colunas necessárias ao contrato.
+
+As informações comerciais destinadas aos vendedores estão nas colunas M, N, O e P.
+
+O adapter deverá preservar o número original da linha.
+
+O número da linha não será usado como identidade do lead.
+
+## 42. Credencial Google
+
+A conta de serviço do Google já possui permissão de leitor.
+
+O arquivo JSON será configurado durante a instalação do segundo computador.
+
+O arquivo não será commitado.
+
+O arquivo não será copiado para o frontend.
+
+O arquivo não será enviado ao navegador.
+
+O arquivo será montado como segredo no container do backend/worker.
+
+Opção recomendada de configuração:
+
+```text
+GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/google-sheets-service-account.json
+```
+
+Alternativamente, o conteúdo poderá ser recebido por variável protegida:
+
+```text
+GOOGLE_SERVICE_ACCOUNT_JSON=<conteúdo-json-protegido>
+```
+
+O processo deverá falhar com mensagem clara se nenhuma credencial existir.
+
+A mensagem de erro não deverá incluir o conteúdo da chave.
+
+## 43. Regra explícita do mockup
+
+A linha 2 da planilha é um mockup e não pode entrar na fila.
+
+O adapter deverá ignorar a linha antes da normalização final.
+
+Critério oficial:
+
+```text
+se qualquer célula entre M e P contiver
+"<test lead: dummy data"
+então a linha é MOCKUP e não é importada
+```
+
+A comparação deverá ignorar diferenças de maiúsculas/minúsculas.
+
+A comparação deverá aceitar espaços extras ao redor do texto.
+
+A comparação deverá ser feita após conversão segura para string.
+
+Exemplo que deve ser ignorado:
+
+```text
+M: <test lead: dummy data for cpf>
+N: <test lead: dummy data for name>
+O: <test lead: dummy data for phone>
+P: test@meta.com
+```
+
+Exemplo que pode ser importado:
+
+```text
+M: 903403659166
+N: Maria Silva
+O: 11999990000
+P: maria@empresa.com
+```
+
+O sistema deverá registrar a quantidade de linhas ignoradas por mockup.
+
+Linhas ignoradas por mockup não geram lead.
+
+Linhas ignoradas por mockup não geram atribuição.
+
+Linhas ignoradas por mockup não geram evento de fila.
+
+Linhas ignoradas por mockup podem aparecer no relatório técnico da importação.
+
+## 44. Normalização de linhas
+
+Cada linha será convertida para um payload canônico.
+
+O payload deverá conter `sourceRow`.
+
+O payload deverá conter `sourceLeadId`.
+
+O payload deverá conter `rowHash`.
+
+O payload deverá conter os campos M–P normalizados.
+
+O payload deverá conter a data original de entrada.
+
+O payload deverá conter campanha.
+
+O payload deverá conter dados necessários à validação mínima.
+
+Campos vazios deverão ser representados como `null`.
+
+Espaços externos deverão ser removidos.
+
+Telefones deverão ser normalizados sem perder o valor original auditável.
+
+E-mails deverão ser normalizados para comparação sem alterar a apresentação.
+
+Documentos deverão ser normalizados para comparação e validação.
+
+## 45. Idempotência da importação
+
+Uma mesma linha processada duas vezes não pode criar dois leads.
+
+A identidade primária da origem será `sourceLeadId` quando disponível.
+
+O `rowHash` identificará alterações no conteúdo da linha.
+
+O adapter enviará a importação ao comando idempotente do backend.
+
+O backend deverá tratar repetição como atualização ou no-op.
+
+O backend não deverá criar nova atribuição em reprocessamento idêntico.
+
+O histórico deverá distinguir importação nova de atualização.
+
+Falha parcial não deverá atribuir somente parte de uma operação transacional.
+
+## 46. Frequência e execução
+
+Na máquina 24/7, o worker deverá executar sincronização periódica.
+
+Intervalo inicial recomendado: cinco minutos.
+
+O intervalo deverá ser configurável.
+
+O worker deverá impedir duas execuções simultâneas.
+
+O worker deverá possuir timeout de leitura.
+
+O worker deverá registrar início e fim da execução.
+
+O worker deverá registrar duração.
+
+O worker deverá registrar quantidade lida.
+
+O worker deverá registrar quantidade ignorada.
+
+O worker deverá registrar quantidade importada.
+
+O worker deverá registrar quantidade atualizada.
+
+O worker deverá registrar quantidade com erro.
+
+## 47. Pipeline de ingestão
+
+```text
+Google Sheets
+  -> autenticação de leitura
+  -> leitura do intervalo
+  -> identificação de linhas mockup
+  -> normalização
+  -> validação mínima
+  -> cálculo de row_hash
+  -> comando idempotente de ingestão
+  -> deduplicação
+  -> distribuição FIFO
+  -> auditoria
+```
+
+Linhas mockup saem do pipeline antes da validação de lead.
+
+Linhas inválidas tornam-se pendências administrativas.
+
+Linhas válidas entram no comando idempotente.
+
+A escolha do vendedor permanece no domínio FIFO.
+
+O adapter não manterá cursor de fila.
+
+## 48. Implantação no segundo computador
+
+O segundo computador será o host local 24/7.
+
+Ele deverá manter Docker Desktop ou Docker Engine ativo.
+
+Os containers deverão reiniciar automaticamente.
+
+O host deverá possuir conexão de internet estável.
+
+O host deverá possuir horário correto via sincronização NTP.
+
+O host deverá possuir backup da configuração de segredos.
+
+O host não deverá armazenar segredos em imagem Docker.
+
+O host deverá expor somente as portas necessárias.
+
+O frontend poderá ser servido pelo container web.
+
+O backend poderá ser servido pelo container API.
+
+O worker poderá ser um processo separado.
+
+O Supabase local deverá possuir volume persistente.
+
+## 49. Composição Docker recomendada
+
+```yaml
+services:
+  supabase:
+    restart: unless-stopped
+  api:
+    restart: unless-stopped
+    secrets:
+      - google_sheets_service_account
+  worker:
+    restart: unless-stopped
+    secrets:
+      - google_sheets_service_account
+  web:
+    restart: unless-stopped
+secrets:
+  google_sheets_service_account:
+    file: ./secrets/google-sheets-service-account.json
+```
+
+O arquivo de segredo deverá ter permissões mínimas possíveis.
+
+O arquivo deverá ser ignorado pelo Git.
+
+O compose deverá definir healthchecks.
+
+O worker só deverá processar quando API e Supabase estiverem saudáveis.
+
+## 50. Operação contínua
+
+Healthcheck do Supabase será obrigatório.
+
+Healthcheck da API será obrigatório.
+
+Healthcheck do worker será obrigatório.
+
+Falha do worker deverá permitir reinício automático.
+
+Falha de uma leitura da planilha não deverá apagar leads existentes.
+
+Uma execução com erro deverá permanecer auditável.
+
+O sistema deverá permitir reprocessamento seguro.
+
+O host deverá manter logs rotacionados.
+
+O host deverá alertar quando o worker ficar sem executar.
+
+## 51. Checklist de instalação
+
+1. Instalar Docker.
+2. Clonar o repositório.
+3. Criar pasta local de segredos.
+4. Copiar JSON da conta de serviço.
+5. Compartilhar planilha com o e-mail da conta.
+6. Configurar ID da planilha.
+7. Configurar gid da aba.
+8. Configurar intervalo.
+9. Configurar variáveis do Supabase.
+10. Executar migrations.
+11. Executar seed inicial se necessário.
+12. Subir containers.
+13. Conferir healthchecks.
+14. Executar sincronização manual.
+15. Confirmar mockup ignorado.
+16. Confirmar lead real distribuído.
+17. Ativar reinício automático.
+18. Registrar procedimento operacional.
+
+## 52. Testes Google Sheets
+
+- credencial válida lê planilha;
+- credencial ausente falha sem vazar segredo;
+- planilha sem permissão retorna erro orientado;
+- gid configurável seleciona aba correta;
+- linha 2 mockup é ignorada;
+- marcador em M ignora linha;
+- marcador em N ignora linha;
+- marcador em O ignora linha;
+- marcador em P ignora linha;
+- marcador em caixa alta também ignora;
+- espaços extras não impedem exclusão;
+- linha real é normalizada;
+- repetição não duplica lead;
+- alteração atualiza origem;
+- erro parcial não cria atribuição incompleta;
+- métrica informa linhas ignoradas.
+
+## 53. Critérios de aceite adicionais
+
+1. A planilha é lida sem escrita.
+2. A linha 2 não aparece na fila.
+3. O texto mockup em M–P é reconhecido.
+4. Um lead real é importado uma única vez.
+5. Repetir o worker é seguro.
+6. O lead importado usa FIFO.
+7. O cursor não fica no adapter.
+8. O segredo não aparece no Git.
+9. O segredo não aparece no browser.
+10. Containers reiniciam após falha.
+11. Supabase mantém volume persistente.
+12. API continua protegendo proprietários.
+13. Contador reflete o lead novo importado.
+14. Histórico registra a importação.
+15. Logs permitem diagnosticar falhas.
+
+## 54. Próxima etapa de execução
+
+Depois da aprovação desta extensão, criar o plano de implementação.
+
+O plano deverá separar adapter Google Sheets, contrato de linha, filtro de mockup, idempotência, worker, Docker, segredo, endpoint interno e testes.
